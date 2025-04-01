@@ -9,7 +9,15 @@ export type Identity = {
 export enum IdentityRole {
   ADMIN = "admin",
   USER = "user",
-  SITE_USER = "site_user ",
+  SITE_USER = "site_user",
+  ANONYMOUS = "anonymous",
+}
+
+export enum AccessType {
+  ALL = "all",
+  AUTH_ONLY = "auth_only",
+  ANONYMOUS_FRIENDLY = "anonymous-friendly",
+  ADMIN_ONLY = "admin-only",
 }
 
 export enum COOKIE {

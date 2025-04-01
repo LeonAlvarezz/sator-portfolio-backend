@@ -30,8 +30,9 @@ export class SessionRepository {
     });
   }
 
-  public async createSession(session: Session) {
-    await prisma.session.create({
+  public async createSession(session: Session, tx?: Prisma.TransactionClient) {
+    const client = tx ? tx : prisma;
+    return await client.session.create({
       data: session,
     });
   }

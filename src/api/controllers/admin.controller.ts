@@ -3,7 +3,8 @@ import logger from "@/logger/logger";
 import { AdminService } from "@/services/admin.service";
 import { AssignAdminRoleSchema } from "@/types/admin.type";
 import { LoginSchema, SignUpSchema, UpdateTotpSchema } from "@/types/auth.type";
-import { getAdminCookie } from "@/utils/cookie";
+import { COOKIE } from "@/types/base.type";
+import { deleteCookie, getAdminCookie } from "@/utils/cookie";
 import { ThrowInternalServer, ThrowUnauthorized } from "@/utils/exception";
 import type { Request, Response, NextFunction } from "express";
 
@@ -57,6 +58,7 @@ export class AdminController {
       if (!result) {
         return ThrowInternalServer();
       }
+      deleteCookie(res, COOKIE.ADMIN);
       res.json({
         data: "Successfully Sign Out",
       });

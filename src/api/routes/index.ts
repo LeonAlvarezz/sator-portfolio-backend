@@ -7,3 +7,4 @@ export { default as blog } from "./blog.route";
 export { default as formQuestion } from "./form-question.route";
 export { default as formAttempt } from "./form-attempt.route";
 export { default as test } from "./test.route";
+export { default as siteUser } from "./site-user.route";

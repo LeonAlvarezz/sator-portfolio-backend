@@ -25,26 +25,29 @@ import { SiteMetricRepository } from "@/repositories/site-metric-repository";
 import { IdentityRole } from "@/types/base.type";
 import type { UpdateTotp } from "@/types/auth.type";
 import { decodeBase64 } from "@oslojs/encoding";
+import { UserService } from "./user.service";
 export class SiteUserService {
-  private _siteUserRepository: SiteUserRepository;
-  private _sessionRepository: SessionRepository;
-  private _sessionService: SessionService;
-  private _authRepository: AuthRepository;
-  private _siteMetricRepository: SiteMetricRepository;
+  private siteUserRepository: SiteUserRepository;
+  private sessionRepository: SessionRepository;
+  private authRepository: AuthRepository;
+  private siteMetricRepository: SiteMetricRepository;
+  private sessionService: SessionService;
+  private userService: UserService;
   constructor() {
-    this._siteUserRepository = new SiteUserRepository();
-    this._sessionRepository = new SessionRepository();
-    this._sessionService = new SessionService();
-    this._authRepository = new AuthRepository();
-    this._siteMetricRepository = new SiteMetricRepository();
+    this.siteUserRepository = new SiteUserRepository();
+    this.sessionRepository = new SessionRepository();
+    this.authRepository = new AuthRepository();
+    this.siteMetricRepository = new SiteMetricRepository();
+    this.sessionService = new SessionService();
+    this.userService = new UserService();
   }
   public async paginateSiteUsers(filter: SiteUserFilter) {
-    const count = await this._siteUserRepository.count(filter);
+    const count = await this.siteUserRepository.count(filter);
     const { current_page, page, page_count, page_size } = getPaginationMetadata(
       filter,
       count
     );
-    const siteUsers = await this._siteUserRepository.paginate(filter);
+    const siteUsers = await this.siteUserRepository.paginate(filter);
     const decryptedSiteUsers = siteUsers.map((user) => ({
       ...user,
       api_key: decryptApiKey(user.api_key),
@@ -60,6 +63,37 @@ export class SiteUserService {
       },
     };
   }
+
+  public async paginateByUser(token: string, filter: SiteUserFilter) {
+    const user = await this.userService.getMe(token);
+    if (!user) return ThrowUnauthorized();
+    const count = await this.siteUserRepository.count(filter, {
+      user_id: user.id,
+    });
+    const { current_page, page, page_count, page_size } = getPaginationMetadata(
+      filter,
+      count
+    );
+    const siteUsers = await this.siteUserRepository.paginateByUser(
+      user.id,
+      filter
+    );
+    const decryptedSiteUsers = siteUsers.map((user) => ({
+      ...user,
+      api_key: decryptApiKey(user.api_key),
+    }));
+    return {
+      data: decryptedSiteUsers,
+      metadata: {
+        current_page,
+        page,
+        page_count,
+        count,
+        page_size,
+      },
+    };
+  }
+
   public async create(payload: CreateSiteUser) {
     const passwordHash = await hashPassword(config.defaultPassword);
     return prisma.$transaction(async (tx) => {
@@ -68,7 +102,7 @@ export class SiteUserService {
       const uniqueEmail = `${username}@sator-tech.live`;
       const apiKey = getRandomString();
       const encryptedKey = encryptApiKey(apiKey);
-      const auth = await this._authRepository.createAuth(
+      const auth = await this.authRepository.createAuth(
         {
           email: uniqueEmail,
           password: passwordHash,
@@ -76,7 +110,7 @@ export class SiteUserService {
         tx
       );
       // Create the site record
-      return this._siteUserRepository.create(
+      return this.siteUserRepository.create(
         {
           website_name: payload.website_name,
           link: payload.link,
@@ -91,7 +125,7 @@ export class SiteUserService {
   }
   // TODO: Solve Username Uniqueness Problem
   public async siteUserlogin(id: string, payload: SiteUserAuth) {
-    const siteUser = await this._siteUserRepository.findByUsername(
+    const siteUser = await this.siteUserRepository.findByUsername(
       payload.username
     );
     if (!siteUser) {
@@ -123,7 +157,7 @@ export class SiteUserService {
 
     const sessionToken = generateSessionToken();
 
-    const session = await this._sessionService.createSession(
+    const session = await this.sessionService.createSession(
       {
         token: sessionToken,
         two_factor_verified: !!auth.totp_key,
@@ -139,7 +173,7 @@ export class SiteUserService {
 
   public async getMe(token: string) {
     const sessionId = decodeToSessionId(token);
-    const result = await this._sessionRepository.findSessionById(sessionId);
+    const result = await this.sessionRepository.findSessionById(sessionId);
     if (result === null) {
       return ThrowUnauthorized();
     }
@@ -148,23 +182,23 @@ export class SiteUserService {
       return ThrowUnauthorized();
     }
     const time = session.expires_at.getTime();
-    await this._sessionService.checkAndExtendSession(sessionId, time);
+    await this.sessionService.checkAndExtendSession(sessionId, time);
     return site_user;
   }
 
   public async signout(token: string) {
     const id = decodeToSessionId(token);
-    const result = await this._sessionService.invalidateSession(id);
+    const result = await this.sessionService.invalidateSession(id);
     return result;
   }
 
   public async checkIsRegistered(id: string) {
-    const isRegistered = await this._siteUserRepository.checkIsRegister(id);
+    const isRegistered = await this.siteUserRepository.checkIsRegister(id);
     return isRegistered;
   }
 
   public async firstLogin(id: string, payload: Onboarding) {
-    const siteUser = await this._siteUserRepository.findByUsername(
+    const siteUser = await this.siteUserRepository.findByUsername(
       payload.username
     );
     if (!siteUser) {
@@ -189,7 +223,7 @@ export class SiteUserService {
 
     const sessionToken = generateSessionToken();
 
-    const session = await this._sessionService.createSession(
+    const session = await this.sessionService.createSession(
       {
         token: sessionToken,
         two_factor_verified: !!auth.totp_key,
@@ -205,7 +239,7 @@ export class SiteUserService {
   public async updateAuth(id: string, token: string, payload: Onboarding) {
     const sessionId = decodeToSessionId(token);
 
-    const result = await this._sessionRepository.findSessionById(sessionId);
+    const result = await this.sessionRepository.findSessionById(sessionId);
     if (result === null) {
       return ThrowUnauthorized();
     }
@@ -219,33 +253,33 @@ export class SiteUserService {
             : "Invalid Credentials"
         );
       const hashedPassword = await hashPassword(payload.password);
-      const auth = await this._authRepository.updatePassword(
+      const auth = await this.authRepository.updatePassword(
         result.site_user.auth_id,
         hashedPassword,
         tx
       );
       await Promise.all([
-        this._siteUserRepository.updateRegisteredAt(id, tx),
-        this._siteUserRepository.updateUsername(id, payload.username, tx),
+        this.siteUserRepository.updateRegisteredAt(id, tx),
+        this.siteUserRepository.updateUsername(id, payload.username, tx),
       ]);
       return auth.site_user;
     });
   }
 
   public async increaseView(key: string) {
-    const site = await this._siteUserRepository.findByApiKey(key);
+    const site = await this.siteUserRepository.findByApiKey(key);
     if (!site) return ThrowUnauthorized();
     return await prisma.$transaction(async (tx) => {
-      const siteMetric = await this._siteMetricRepository.findByToday(
+      const siteMetric = await this.siteMetricRepository.findByToday(
         site.id,
         tx
       );
       //If not found, then create new site metric
       if (!siteMetric) {
-        await this._siteMetricRepository.createMetric(site.id, tx);
+        await this.siteMetricRepository.createMetric(site.id, tx);
         return site;
       }
-      await this._siteMetricRepository.increaseView(siteMetric.id, tx);
+      await this.siteMetricRepository.increaseView(siteMetric.id, tx);
       return site;
     });
   }
@@ -267,8 +301,8 @@ export class SiteUserService {
         return ThrowInternalServer("Invalid Code");
       }
       const result = await prisma.$transaction(async (tx) => {
-        await this._sessionRepository.updateTwoFactorVerified(sessionId, tx);
-        return await this._authRepository.updateTotp(
+        await this.sessionRepository.updateTwoFactorVerified(sessionId, tx);
+        return await this.authRepository.updateTotp(
           siteUser.auth_id,
           {
             code: payload.code,

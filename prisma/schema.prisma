@@ -9,16 +9,17 @@ datasource db {
 }
 
 model Auth {
-  id         String    @id @default(uuid())
-  email      String    @unique
-  password   String
-  totp_key   Bytes?
-  last_login DateTime?
-  created_at DateTime  @default(now())
-  updated_at DateTime  @updatedAt
-  admin      Admin?
-  site_user  SiteUser?
-  user       User?
+  id           String    @id @default(uuid())
+  email        String    @unique
+  password     String
+  totp_key     Bytes?
+  last_login   DateTime?
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @updatedAt
+  is_anonymous Boolean   @default(false)
+  admin        Admin?
+  site_user    SiteUser?
+  user         User?
 }
 
 model User {
@@ -28,12 +29,13 @@ model User {
   username             String        @unique @db.VarChar(20)
   auth_id              String        @unique
   default_chat_room_id String?       @unique
+  is_anonymous         Boolean       @default(false)
   default_chat_room    ChatRoom?     @relation(fields: [default_chat_room_id], references: [id])
   ChatMember           ChatMember[]
   form_attempt         FormAttempt[]
   Session              Session[]
   SiteUser             SiteUser[]
-  auth                 Auth          @relation(fields: [auth_id], references: [id])
+  auth                 Auth          @relation(fields: [auth_id], references: [id], onDelete: Cascade)
 }
 
 model SiteUser {

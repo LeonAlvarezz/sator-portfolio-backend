@@ -1,4 +1,5 @@
 import prisma from "@/loaders/prisma";
+import { IdentityRole } from "@/types/base.type";
 import { type CreateUser, type UserFilter } from "@/types/user.type";
 import type { Prisma } from "@prisma/client";
 
@@ -43,13 +44,29 @@ export class UserRepository {
   public async addUser(
     payload: CreateUser,
     auth_id: string,
-    tx: Prisma.TransactionClient
+    tx: Prisma.TransactionClient,
+    identity = IdentityRole.USER
   ) {
     const client = tx ? tx : prisma;
     return client.user.create({
       data: {
         username: payload.username,
+        is_anonymous: identity === IdentityRole.ANONYMOUS ? true : false,
         auth_id,
+      },
+    });
+  }
+  public async bindUser(
+    id: string,
+    payload: CreateUser,
+    tx: Prisma.TransactionClient
+  ) {
+    const client = tx ? tx : prisma;
+    return client.user.update({
+      where: { id },
+      data: {
+        username: payload.username,
+        is_anonymous: false,
       },
     });
   }

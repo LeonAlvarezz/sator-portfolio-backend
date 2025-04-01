@@ -13,14 +13,11 @@ export class SessionService {
     this.sessionRepository = new SessionRepository();
   }
 
-  public async createSession(
-    payload: CreateSession,
-    identity: Identity
-  ): Promise<Session> {
+  public async createSession(payload: CreateSession, identity: Identity) {
     const sessionId = encodeHexLowerCase(
       sha256(new TextEncoder().encode(payload.token))
     );
-    const session: Session = {
+    const data: Session = {
       id: sessionId,
       user_id: identity.role === IdentityRole.USER ? identity.id : null,
       admin_id: identity.role === IdentityRole.ADMIN ? identity.id : null,
@@ -29,8 +26,7 @@ export class SessionService {
       two_factor_verified: payload.two_factor_verified,
       expires_at: new Date(Date.now() + SESSION_EXPIRES_DATE_MS),
     };
-    await this.sessionRepository.createSession(session);
-    return session;
+    return await this.sessionRepository.createSession(data);
   }
 
   public async invalidateSession(id: string) {

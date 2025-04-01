@@ -11,8 +11,6 @@
 //   return result;
 // };
 
-import { sumArray } from "@/utils/string";
-
 // const prices = [
 //   { id: "eb5df333-887f-422c-934a-239c0abbd468", price: [100, 200] },
 //   { id: "eb5df333-887f-422c-934a-239c0abbd468", price: [0] },
@@ -44,25 +42,45 @@ import { sumArray } from "@/utils/string";
 
 // console.log(result);
 
-const items = [
-  {
-    id: 1,
-    price: [100, 200],
-  },
-  {
-    id: 2,
-    price: [10, 20],
-  },
-  {
-    id: 3,
-    price: [40],
-  },
-];
+// const items = [
+//   {
+//     id: 1,
+//     price: [100, 200],
+//   },
+//   {
+//     id: 2,
+//     price: [10, 20],
+//   },
+//   {
+//     id: 3,
+//     price: [40],
+//   },
+// ];
 
-const result = items.reduce(
-  (prev, curr) => {
-    return { price: sumArray(prev.price, curr.price) };
-  },
-  { price: [0, 0] }
+// const result = items.reduce(
+//   (prev, curr) => {
+//     return { price: sumArray(prev.price, curr.price) };
+//   },
+//   { price: [0, 0] }
+// );
+// console.log("result:", result);
+
+const pathname = "/en/user-panel/site";
+const anonymousFriendlyPaths = [
+  "/user-panel",
+  "/user-panel/form",
+  "/user-panel/setting",
+];
+console.log(
+  anonymousFriendlyPaths.some((path) => {
+    const cond = pathname.replace(/^\/(en|kh)/, "").startsWith(path);
+    console.log(
+      'pathname.replace(/^/(en|kh)/, ""):',
+      pathname.replace(/^\/(en|kh)/, "")
+    );
+    console.log(`${path}: ${cond}`);
+    return pathname.replace(/^\/(en|kh)/, "").startsWith(path);
+  })
 );
-console.log("result:", result);
+
+console.log("/user-panel".startsWith("/user-panel/site"));

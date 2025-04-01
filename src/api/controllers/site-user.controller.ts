@@ -8,7 +8,12 @@ import {
   SiteUserAuthSchema,
   SiteUserFilterSchema,
 } from "@/types/site-user.type";
-import { deleteCookie, getSiteUserCookie, setCookie } from "@/utils/cookie";
+import {
+  deleteCookie,
+  getSiteUserCookie,
+  getUserCookie,
+  setCookie,
+} from "@/utils/cookie";
 import {
   ThrowForbidden,
   ThrowInternalServer,
@@ -29,6 +34,25 @@ export class SiteUserController {
     try {
       const filter = SiteUserFilterSchema.parse(req.query);
       const siteUsers = await this._siteUserService.paginateSiteUsers(filter);
+      res.json({ data: siteUsers });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public paginateByUser = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const filter = SiteUserFilterSchema.parse(req.query);
+      const token = getUserCookie(req);
+      if (!token) return ThrowForbidden("No token");
+      const siteUsers = await this._siteUserService.paginateByUser(
+        token,
+        filter
+      );
       res.json({ data: siteUsers });
     } catch (error) {
       next(error);

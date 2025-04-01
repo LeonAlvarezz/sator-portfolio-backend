@@ -1,12 +1,13 @@
 import { ThrowForbidden, ThrowUnauthorized } from "@/utils/exception";
 import type { Request, Response, NextFunction } from "express";
-import type { Admin } from "@prisma/client";
+import type { Admin, User } from "@prisma/client";
 import { RoleRepository } from "@/repositories/role.repository";
 import { ResourceRepository } from "@/repositories/resource.repository";
 import { getAdminCookie, getUserCookie } from "@/utils/cookie";
 import { AdminService } from "@/services/admin.service";
 import { UserService } from "@/services/user.service";
 import config from "@/config/environment";
+import { AccessType } from "@/types/base.type";
 
 type ProtectedRouteHandler = (
   req: Request,
@@ -16,6 +17,7 @@ type ProtectedRouteHandler = (
 
 function protectedRoute(
   handler: ProtectedRouteHandler,
+  access = AccessType.AUTH_ONLY,
   options?: {
     resource: string;
     action: "read" | "write" | "delete";
@@ -40,13 +42,16 @@ function protectedRoute(
         : getUserCookie(req);
 
       if (!sessionToken) {
-        return ThrowUnauthorized(); // Handle unauthorized access
+        return ThrowUnauthorized();
       }
       const auth = isAdminRoute
         ? await adminService.getMe(sessionToken)
         : await userService.getMe(sessionToken);
       if (!auth) {
         return ThrowUnauthorized();
+      }
+      if (access === AccessType.AUTH_ONLY) {
+        if ((auth as User).is_anonymous) return ThrowUnauthorized();
       }
 
       if (options && isAdminRoute) {

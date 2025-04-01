@@ -1,5 +1,5 @@
-export { default as siteUser } from "./site-user.route";
-export { default as siteUserPortfolio } from "./portfolio.route";
-export { default as siteUserCategory } from "./category.route";
-export { default as siteUserStatistic } from "./statistic.route";
-export { default as siteUserBlog } from "./blog.route";
+export { default as siteUserRouteSiteUser } from "./site-user.route";
+export { default as siteUserRoutePortfolio } from "./portfolio.route";
+export { default as siteUserRouteCategory } from "./category.route";
+export { default as siteUserRouteStatistic } from "./statistic.route";
+export { default as siteUserRouteBlog } from "./blog.route";

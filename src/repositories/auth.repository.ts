@@ -3,6 +3,7 @@ import type { Signup } from "@/types/auth.type";
 import type { Prisma } from "@prisma/client";
 import type { EncryptedUpdateTotp } from "./admin.repository";
 import { encryptToBuffer } from "@/utils/encryption";
+import { IdentityRole } from "@/types/base.type";
 
 export class AuthRepository {
   public async checkByEmail(email: string) {
@@ -19,15 +20,50 @@ export class AuthRepository {
     });
   }
 
+  public async findById(id: string) {
+    return prisma.auth.findUnique({
+      where: { id },
+      omit: {
+        password: false, // The password field is now selected.
+      },
+      include: {
+        user: true,
+        admin: true,
+        site_user: true,
+      },
+    });
+  }
+
   public async createAuth(
     payload: Omit<Signup, "username">,
-    tx: Prisma.TransactionClient
+    tx: Prisma.TransactionClient,
+    identity = IdentityRole.ADMIN
   ) {
     const client = tx ? tx : prisma;
     return client.auth.create({
       data: {
         email: payload.email,
         password: payload.password,
+        is_anonymous: identity === IdentityRole.ANONYMOUS ? true : false,
+      },
+    });
+  }
+
+  public async bindAuth(
+    id: string,
+    payload: Omit<Signup, "username">,
+    tx: Prisma.TransactionClient
+  ) {
+    const client = tx ? tx : prisma;
+    return client.auth.update({
+      where: { id },
+      include: {
+        user: true,
+      },
+      data: {
+        email: payload.email,
+        password: payload.password,
+        is_anonymous: false,
       },
     });
   }

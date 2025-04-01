@@ -24,13 +24,14 @@ import {
   test,
   unreadMessage,
   user,
+  siteUser,
 } from "./routes";
 import {
-  siteUser,
-  siteUserBlog,
-  siteUserCategory,
-  siteUserPortfolio,
-  siteUserStatistic,
+  siteUserRouteSiteUser,
+  siteUserRouteBlog,
+  siteUserRouteCategory,
+  siteUserRoutePortfolio,
+  siteUserRouteStatistic,
 } from "./routes/site-user";
 
 // guaranteed to get dependencies
@@ -58,14 +59,15 @@ export default () => {
   formAttempt(app);
   blog(app);
   test(app);
+  siteUser(app);
 
   // Site user routes group
   const siteUserRouter = Router();
-  siteUser(siteUserRouter);
-  siteUserPortfolio(siteUserRouter);
-  siteUserCategory(siteUserRouter);
-  siteUserStatistic(siteUserRouter);
-  siteUserBlog(siteUserRouter);
+  siteUserRouteSiteUser(siteUserRouter);
+  siteUserRoutePortfolio(siteUserRouter);
+  siteUserRouteCategory(siteUserRouter);
+  siteUserRouteStatistic(siteUserRouter);
+  siteUserRouteBlog(siteUserRouter);
   app.use("/site-user", siteUserRouter);
 
   // Admin routes group

@@ -4,13 +4,14 @@ import { AdminController } from "../../controllers/admin.controller";
 import { AssignAdminRoleSchema } from "@/types/admin.type";
 import protectedRoute from "@/authentication/protected-route";
 import { LoginSchema, SignUpSchema } from "@/types/auth.type";
+import { AccessType } from "@/types/base.type";
 const router = Router();
 const adminController = new AdminController();
 export default (app: Router) => {
   app.use("/", router);
   router.get(
     "/",
-    protectedRoute(adminController.getAdmins, {
+    protectedRoute(adminController.getAdmins, AccessType.AUTH_ONLY, {
       resource: "Admin",
       action: "read",
     })
@@ -24,7 +25,7 @@ export default (app: Router) => {
   router.post(
     "/assign",
     validateData(AssignAdminRoleSchema),
-    protectedRoute(adminController.assignRole, {
+    protectedRoute(adminController.assignRole, AccessType.AUTH_ONLY, {
       resource: "Admin",
       action: "write",
     })

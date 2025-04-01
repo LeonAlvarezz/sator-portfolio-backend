@@ -27,6 +27,24 @@ export class SiteUserRepository {
       where,
     });
   }
+
+  public async paginateByUser(user_id: string, filter: SiteUserFilter) {
+    const where = this.buildFilter(filter);
+    const page = filter.page ? Number(filter.page) : 1;
+    const limit = filter.limit ? Number(filter.limit) : LIMIT;
+    return await prisma.siteUser.findMany({
+      take: limit,
+      skip: (page - 1) * limit,
+      orderBy: {
+        updated_at: "desc",
+      },
+      where: {
+        user_id,
+        ...where,
+      },
+    });
+  }
+
   public async findById(id: string) {
     return await prisma.siteUser.findUnique({
       where: {
@@ -53,8 +71,15 @@ export class SiteUserRepository {
       },
     });
   }
-  public async count(filter: SiteUserFilter) {
-    const where = this.buildFilter(filter);
+
+  public async count(
+    filter: SiteUserFilter,
+    customWhere: Record<string, unknown> = {}
+  ) {
+    const where = {
+      ...this.buildFilter(filter),
+      ...customWhere,
+    };
     return await prisma.siteUser.count({
       where,
     });

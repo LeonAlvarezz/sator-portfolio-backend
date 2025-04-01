@@ -1,8 +1,9 @@
 import { createCipheriv, createDecipheriv } from "crypto";
 import { DynamicBuffer } from "@oslojs/binary";
-import { decodeBase64 } from "@oslojs/encoding";
+import { decodeBase64, encodeHexLowerCase } from "@oslojs/encoding";
 import config from "@/config/environment";
 import crypto from "crypto";
+import { sha256 } from "@oslojs/crypto/sha2";
 
 const key = decodeBase64(config.encryptionCode ?? "");
 export function encrypt(data: Uint8Array): Uint8Array {
@@ -39,6 +40,9 @@ export function encryptString(data: string): Uint8Array {
   return encrypt(new TextEncoder().encode(data));
 }
 
+export function encryptSessionToken(data: string): string {
+  return encodeHexLowerCase(sha256(new TextEncoder().encode(data)));
+}
 export function decrypt(encrypted: Uint8Array): Uint8Array {
   if (encrypted.byteLength < 33) {
     throw new Error("Invalid data");
