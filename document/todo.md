@@ -11,9 +11,8 @@
     + {errorCode, status, message, data}
   
 - [x] Site User 
-- [ ] Site Metric
-- [ ] Regenerate API key
-- [ ] 
+- [x] Site Metric
+- [x] Regenerate API key
 
 # Backlog
 - [ ] Add IP + Device column in session table 
