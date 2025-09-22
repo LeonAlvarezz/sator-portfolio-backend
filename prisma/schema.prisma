@@ -60,13 +60,13 @@ model SiteUser {
 model Admin {
   id          String       @id @default(uuid())
   username    String       @unique @db.VarChar(20)
-  created_at  DateTime     @default(now())
   profile_url String?
   role_id     Int
-  updated_at  DateTime     @updatedAt
   auth_id     String       @unique
   Auth        Auth         @relation(fields: [auth_id], references: [id])
   role        Role         @relation(fields: [role_id], references: [id])
+  created_at  DateTime     @default(now())
+  updated_at  DateTime     @updatedAt
   Blog        Blog[]
   Category    Category[]
   ChatMember  ChatMember[]
