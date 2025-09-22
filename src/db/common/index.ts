@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { customType, timestamp } from 'drizzle-orm/pg-core';
 
 export const timestamps = {
