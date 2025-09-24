@@ -1,10 +1,10 @@
 import { createCipheriv, createDecipheriv } from "crypto";
 import { DynamicBuffer } from "@oslojs/binary";
 import { decodeBase64 } from "@oslojs/encoding";
-import config from "@/config/environment";
+import { env } from "@/config";
 import crypto from "crypto";
 
-const key = decodeBase64(config.encryptionCode ?? "");
+const key = decodeBase64(env.ENCRYPTION_KEY ?? "");
 export function encrypt(data: Uint8Array): Uint8Array {
   const iv = new Uint8Array(16);
   crypto.getRandomValues(iv);
@@ -62,18 +62,18 @@ export function decryptToString(data: Uint8Array): string {
 }
 
 export function encryptApiKey(text: string): string {
-  const secretKey = Buffer.from(config.api_key.secret, "hex");
-  const iv = Buffer.from(config.api_key.iv, "hex");
-  const cipher = createCipheriv(config.api_key.algo, secretKey, iv);
+  const secretKey = Buffer.from(env.API_KEY_SECRET, "hex");
+  const iv = crypto.randomBytes(16);
+  const cipher = createCipheriv(env.API_KEY_ALGO, secretKey, iv);
   let encrypted = cipher.update(text, "utf8", "hex");
   encrypted += cipher.final("hex");
   return encrypted;
 }
 
 export function decryptApiKey(key: string): string {
-  const secretKey = Buffer.from(config.api_key.secret, "hex");
-  const iv = Buffer.from(config.api_key.iv, "hex");
-  const decipher = createDecipheriv(config.api_key.algo, secretKey, iv);
+  const secretKey = Buffer.from(env.API_KEY_SECRET, "hex");
+  const iv = crypto.randomBytes(16);
+  const decipher = createDecipheriv(env.API_KEY_ALGO, secretKey, iv);
   let decrypted = decipher.update(key, "hex", "utf8");
   decrypted += decipher.final("utf8");
   return decrypted;

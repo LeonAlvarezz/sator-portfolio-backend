@@ -3,7 +3,7 @@ import { enumToPgEnum, timestamps } from "../common";
 import { ChatMessageTypeEnum } from "@/modules/chat-messages/entity/chat-message.enum";
 import { chatRooms, chatMembers } from ".";
 import { relations } from "drizzle-orm";
-const chatMessageTypeEnum = pgEnum("ChatMessageType", enumToPgEnum(ChatMessageTypeEnum));
+export const chatMessageTypeEnum = pgEnum("ChatMessageType", enumToPgEnum(ChatMessageTypeEnum));
 export const chatMessages = pgTable('chat_messages', {
     id: uuid().defaultRandom().notNull().primaryKey(),
     content: text().notNull(),

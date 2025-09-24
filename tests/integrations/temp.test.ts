@@ -1,6 +1,6 @@
 import request from "supertest";
 import { describe, it, expect, afterAll, beforeAll } from "vitest";
-import config from "@/config/environment";
+import {env} from "@/config";
 import { app, closeServer, startServer } from "@/index";
 
 describe("Testing Phase", () => {
@@ -11,7 +11,7 @@ describe("Testing Phase", () => {
     closeServer();
   });
   let testId: string;
-  const prefix = config.api.prefix;
+  const prefix = env.API_PREFIX;
   it("create should return status 200", async () => {
     const response = await request(app)
       .post(prefix + "/test")

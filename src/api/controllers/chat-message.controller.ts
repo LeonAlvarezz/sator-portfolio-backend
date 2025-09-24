@@ -6,7 +6,7 @@ import {
 import { RoomIdSchema } from "@/types/chat-room.type";
 import { getAdminCookie, getUserCookie } from "@/utils/cookie";
 import type { Request, Response, NextFunction } from "express";
-import config from "@/config/environment";
+import { env } from "@/config";
 
 export class ChatMessageController {
   private chatMessageService: ChatMessageService;
@@ -32,7 +32,7 @@ export class ChatMessageController {
       const params = RoomIdSchema.parse(req.params);
       const filter = ChatMessageFilterSchema.parse(req.query);
       const isAdminRoute = req.originalUrl.startsWith(
-        `${config.api.prefix}/admin`
+        `${env.API_PREFIX}/admin`
       );
       const token = isAdminRoute ? getAdminCookie(req) : getUserCookie(req);
       const { messages, page, page_count, page_size, current_page } =

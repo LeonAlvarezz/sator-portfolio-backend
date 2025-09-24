@@ -1,11 +1,11 @@
 import { startServer, closeServer, app } from "@/index";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import config from "@/config/environment";
+import { env } from "@/config";
 import request from "supertest";
 import type { Login } from "@/types/auth.type";
 
 describe("Admin", () => {
-  const prefix = config.api.prefix;
+  const prefix = env.API_PREFIX;
   let token = "";
 
   beforeAll(async () => {

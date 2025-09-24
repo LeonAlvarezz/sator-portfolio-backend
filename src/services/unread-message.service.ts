@@ -7,7 +7,7 @@ import type { Request } from "express";
 import { UserService } from "./user.service";
 import { AdminService } from "./admin.service";
 import { getAdminCookie, getUserCookie } from "@/utils/cookie";
-import config from "@/config/environment";
+import { env } from "@/config";
 
 export class UnreadMessageService {
   private unreadMessageRepository: UnreadMessageRepository;
@@ -30,7 +30,7 @@ export class UnreadMessageService {
 
   public async findByAuth(req: Request) {
     const isAdminRoute = req.originalUrl.startsWith(
-      `${config.api.prefix}/admin`
+      `${env.API_PREFIX}/admin`
     );
     const sessionToken = isAdminRoute
       ? getAdminCookie(req)

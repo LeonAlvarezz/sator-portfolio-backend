@@ -7,7 +7,7 @@ import {
 } from "@/utils/exception";
 import { decodeBase64 } from "@oslojs/encoding";
 import { verifyTOTP } from "@oslojs/otp";
-import config from "@/config/environment";
+import { env } from "@/config";
 
 import { COOKIE, IdentityRole } from "@/types/base.type";
 import type { UpdateTotp } from "@/types/auth.type";
@@ -99,7 +99,7 @@ export class AdminService {
         return ThrowInternalServer("Invalid Code");
       }
     } else {
-      if (payload.otp !== Number(config.defaultOTPCode)) {
+      if (payload.otp !== Number(env.DEFAULT_OTP_CODE)) {
         return ThrowUnauthorized("Invalid Code");
       }
     }

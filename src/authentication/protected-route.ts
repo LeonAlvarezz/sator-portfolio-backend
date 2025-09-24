@@ -6,7 +6,7 @@ import { ResourceRepository } from "@/repositories/resource.repository";
 import { getAdminCookie, getUserCookie } from "@/utils/cookie";
 import { AdminService } from "@/services/admin.service";
 import { UserService } from "@/services/user.service";
-import config from "@/config/environment";
+import { env } from "@/config";
 
 type ProtectedRouteHandler = (
   req: Request,
@@ -33,7 +33,7 @@ function protectedRoute(
   ): Promise<void> => {
     try {
       const isAdminRoute = req.originalUrl.startsWith(
-        `${config.api.prefix}/admin`
+        `${env.API_PREFIX}/admin`
       );
       const sessionToken = isAdminRoute
         ? getAdminCookie(req)

@@ -10,7 +10,7 @@ import { BlogFilterSchema, CreateBlogSchema } from "@/types/blog.type";
 import { getAdminCookie, getSiteUserCookie } from "@/utils/cookie";
 import { ThrowForbidden, ThrowUnauthorized } from "@/utils/exception";
 import type { NextFunction, Request, Response } from "express";
-import config from "@/config/environment";
+import { env } from "@/config";
 import { AdminService } from "@/services/admin.service";
 import { SimpleSuccess } from "@/response/response";
 
@@ -143,7 +143,7 @@ export class BlogController {
 
   public create = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const isAdmin = req.originalUrl.startsWith(`${config.api.prefix}/admin`);
+      const isAdmin = req.originalUrl.startsWith(`${env.API_PREFIX}/admin`);
       let identity: Identity;
       if (isAdmin) {
         const token = getAdminCookie(req);
@@ -169,7 +169,7 @@ export class BlogController {
   };
   public update = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const isAdmin = req.originalUrl.startsWith(`${config.api.prefix}/admin`);
+      const isAdmin = req.originalUrl.startsWith(`${env.API_PREFIX}/admin`);
       let identity: Identity;
       if (isAdmin) {
         const token = getAdminCookie(req);

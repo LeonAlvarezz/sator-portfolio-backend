@@ -1,4 +1,4 @@
-import { config } from "@/config";
+import { env } from "@/config";
 import { SimpleSuccess } from "@/response/response";
 import { PortfolioService } from "@/services/portfolio.service";
 import {
@@ -143,7 +143,7 @@ export class PortfolioController {
   ) => {
     try {
       const validated = CreatePortfolioSchema.parse(req.body);
-      const role = req.originalUrl.startsWith(`${config.api.prefix}/admin`)
+      const role = req.originalUrl.startsWith(`${env.API_PREFIX}/admin`)
         ? IdentityRole.ADMIN
         : IdentityRole.SITE_USER;
       const token =
@@ -171,7 +171,7 @@ export class PortfolioController {
         id: req.params.id,
       });
       const validated = CreatePortfolioSchema.parse(req.body);
-      const role = req.originalUrl.startsWith(`${config.api.prefix}/admin`)
+      const role = req.originalUrl.startsWith(`${env.API_PREFIX}/admin`)
         ? IdentityRole.ADMIN
         : IdentityRole.SITE_USER;
       const token =

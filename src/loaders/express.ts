@@ -3,11 +3,11 @@ import type { NextFunction, Request, Response } from "express";
 import cors from "cors";
 import methodOverride from "method-override";
 import routes from "@/api";
-import config from "@/config/environment";
 import errorMiddleware from "@/api/middleware/errorHandler";
 import cookieParser from "cookie-parser";
 import { OpticMiddleware } from "@useoptic/express-middleware";
 import createHttpError from "http-errors";
+import { env } from "@/config";
 export default function configureExpress({
   app,
 }: {
@@ -21,7 +21,7 @@ export default function configureExpress({
   app.use(express.json());
 
   // API routes
-  app.use(config.api.prefix, routes());
+  app.use(env.API_PREFIX, routes());
 
   // 404 Handler - should be after all valid routes
   app.all("*", (_req: Request, res: Response, next: NextFunction) => {

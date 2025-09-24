@@ -6,7 +6,7 @@ import type {
   SiteUserFilter,
 } from "@/types/site-user.type";
 import { getPaginationMetadata } from "@/utils/pagination";
-import config from "@/config/environment";
+import { env } from "@/config";
 import { ThrowInternalServer, ThrowUnauthorized } from "@/utils/exception";
 import { verifyTOTP } from "@oslojs/otp";
 import { decrypt, decryptApiKey, encryptApiKey } from "@/utils/encryption";
@@ -61,7 +61,7 @@ export class SiteUserService {
     };
   }
   public async create(payload: CreateSiteUser) {
-    const passwordHash = await hashPassword(config.defaultPassword);
+    const passwordHash = await hashPassword(env.DEFAULT_PASSWORD);
     return prisma.$transaction(async (tx) => {
       // Create Default Auth for the website
       const username = generateRandomUsername();
@@ -116,7 +116,7 @@ export class SiteUserService {
         return ThrowInternalServer("Invalid Code");
       }
     } else {
-      if (payload.otp !== Number(config.defaultOTPCode)) {
+      if (payload.otp !== Number(env.DEFAULT_OTP_CODE)) {
         return ThrowUnauthorized("Invalid Code");
       }
     }

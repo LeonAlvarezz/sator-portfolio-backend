@@ -1,9 +1,9 @@
 import { relations } from "drizzle-orm";
-import { pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, uuid, text, timestamp } from "drizzle-orm/pg-core";
 import { permissionFlags } from ".";
 
 export const resources = pgTable('resources', {
-    id: serial("id").primaryKey(),
+    id: uuid().notNull().primaryKey(),
     name: text().unique().notNull(),
     ...timestamp
 })

@@ -3,7 +3,7 @@ import { enumToPgEnum } from "../common";
 import { admins, chatMessages, chatRooms, unreadMessages, users } from ".";
 import { ChatMemberRoleEnum } from "@/modules/chat-member/entity/chat-member.enum";
 import { relations } from "drizzle-orm";
-const chatMemberRole = pgEnum("ChatMemberRoleEnum", enumToPgEnum(ChatMemberRoleEnum))
+export const chatMemberRole = pgEnum("ChatMemberRoleEnum", enumToPgEnum(ChatMemberRoleEnum))
 export const chatMembers = pgTable('chat_members', {
     id: uuid().defaultRandom().notNull().primaryKey(),
     role: chatMemberRole().default(ChatMemberRoleEnum.MEMBER),

@@ -1,14 +1,14 @@
-import { boolean, integer, pgTable, uniqueIndex, uuid } from "drizzle-orm/pg-core";
+import { boolean, pgTable, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 import { roles, resources } from ".";
 
 export const permissionFlags = pgTable(
     "permission_flags",
     {
         id: uuid().defaultRandom().notNull().primaryKey(),
-        role_id: integer()
+        role_id: uuid()
             .notNull()
             .references(() => roles.id, { onDelete: "cascade" }),
-        resource_id: integer("resource_id")
+        resource_id: uuid()
             .notNull()
             .references(() => resources.id),
         read: boolean("read").notNull().default(false),

@@ -5,7 +5,7 @@ import type { Request } from "express";
 import { SiteUserService } from "./site-user.service";
 import { AdminService } from "./admin.service";
 import { getAdminCookie, getSiteUserCookie } from "@/utils/cookie";
-import config from "@/config/environment";
+import { env } from "@/config";
 
 export class CategoryService {
   private categoryRepository: CategoryRepository;
@@ -26,7 +26,7 @@ export class CategoryService {
     return this.categoryRepository.findBySiteUser(siteUser.id!);
   }
   public async create(req: Request, payload: CreateCategory) {
-    const isAdmin = req.originalUrl.startsWith(`${config.api.prefix}/admin`);
+    const isAdmin = req.originalUrl.startsWith(`${env.API_PREFIX}/admin`);
     const sessionToken = isAdmin ? getAdminCookie(req) : getSiteUserCookie(req);
     const auth = isAdmin
       ? await this.adminService.getMe(sessionToken)

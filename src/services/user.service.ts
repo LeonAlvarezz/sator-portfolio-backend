@@ -1,6 +1,6 @@
 import { UserRepository } from "@/repositories/user.repository";
 import { type UserFilter } from "@/types/user.type";
-import config from "@/config/environment";
+import { env } from "@/config";
 import { getPaginationMetadata } from "@/utils/pagination";
 import type { Login, Signup } from "@/types/auth.type";
 import { ThrowInternalServer, ThrowUnauthorized } from "@/utils/exception";
@@ -89,7 +89,7 @@ export class UserService {
         return ThrowInternalServer("Invalid Code");
       }
     } else {
-      if (payload.otp !== Number(config.defaultOTPCode)) {
+      if (payload.otp !== Number(env.DEFAULT_OTP_CODE)) {
         return ThrowUnauthorized("Invalid Code");
       }
     }

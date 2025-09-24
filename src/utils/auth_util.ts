@@ -1,5 +1,5 @@
 import { sha256 } from "@oslojs/crypto/sha2";
-import config from "@/config/environment";
+import { env } from "@/config";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 
@@ -20,8 +20,7 @@ export function generateSessionToken(): string {
 }
 
 export async function hashPassword(password: string) {
-  const saltRounds = config.passwordSalt;
-  return await bcrypt.hash(password, Number(saltRounds));
+  return await bcrypt.hash(password, Number(env.PASSWORD_SALT));
 }
 
 export async function verifyPassword(password: string, hashedPassword: string) {
