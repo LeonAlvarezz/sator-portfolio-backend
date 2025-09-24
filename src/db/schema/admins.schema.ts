@@ -9,7 +9,7 @@ export const admins = pgTable('admins', {
   username: varchar({ length: 255 }).notNull().unique(),
   profile_url: text(),
   role_id: uuid().references(() => roles.id),
-  auth_id: uuid().references(() => auths.id),
+  auth_id: uuid().references(() => auths.id).notNull(),
   totp_key: bytea(),
   last_login: timestamp(),
   ...timestamps,
@@ -20,7 +20,6 @@ export const adminRelation = relations(admins, ({ one, many }) => ({
     fields: [admins.auth_id],
     references: [auths.id],
   }),
-
   role: one(roles, {
     fields: [admins.role_id],
     references: [roles.id],

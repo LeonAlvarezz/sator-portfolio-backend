@@ -13,12 +13,12 @@ export class SessionService {
   }
 
   public async createSession(
-    payload: CreateSession & { token: string },
+    payload: CreateSession
   ): Promise<SessionEntity> {
     const sessionId = encodeHexLowerCase(
       sha256(new TextEncoder().encode(payload.token))
     );
-    const session: CreateSession = {
+    const session: SessionEntity = {
       id: sessionId,
       auth_id: payload.auth_id,
       two_factor_verified: payload.two_factor_verified,

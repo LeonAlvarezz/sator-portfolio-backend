@@ -1,7 +1,7 @@
 import { db, type DrizzleTransaction } from "@/db";
 import { sessions } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import type { CreateSession } from "./dto/create-session.dto";
+import type { SessionEntity } from "./entity/session.entity";
 
 export class SessionRepository {
   public async findSessionById(id: string) {
@@ -12,6 +12,7 @@ export class SessionRepository {
           with: {
             user: true,
             site_user: true,
+            admin: true,
           }
         }
       },
@@ -28,8 +29,9 @@ export class SessionRepository {
     }).where(eq(sessions.id, sessionId));
   }
 
-  public async createSession(payload: CreateSession) {
-    return await db.insert(sessions).values(payload);
+  public async createSession(payload: SessionEntity) {
+    const [result] = await db.insert(sessions).values(payload).returning();
+    return result
   }
 
   public async updateTwoFactorVerified(

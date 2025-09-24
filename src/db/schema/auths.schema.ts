@@ -22,7 +22,6 @@ export const authsRelations = relations(auths, ({ one, many }) => ({
     fields: [auths.id],
     references: [siteUsers.auth_id],
   }),
-
   admin: one(admins, {
     fields: [auths.id],
     references: [admins.auth_id],

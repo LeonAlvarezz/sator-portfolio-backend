@@ -18,7 +18,7 @@ import {
   verifyPassword,
 } from "@/utils/auth_util";
 import prisma from "@/loaders/prisma";
-import { AuthRepository } from "@/repositories/auth.repository";
+import { AuthRepository } from "@/modules/auth/auth.repository";
 import { SessionRepository } from "@/modules/session/session.repository";
 import { SessionService } from "../modules/session/session.service";
 import { SiteMetricRepository } from "@/repositories/site-metric-repository";

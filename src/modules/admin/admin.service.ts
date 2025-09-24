@@ -1,22 +1,15 @@
 import { AdminRepository } from "@/modules/admin/admin.repository";
 import { SessionRepository } from "@/modules/session/session.repository";
-import {
-  ThrowInternalServer,
-  ThrowNotFound,
-  ThrowUnauthorized,
-} from "@/utils/exception";
 import { decodeBase64 } from "@oslojs/encoding";
 import { verifyTOTP } from "@oslojs/otp";
 import { env } from "@/config";
 
-import { COOKIE, IdentityRole } from "@/types/base.type";
+import { COOKIE } from "@/types/base.type";
 import type { UpdateTotp } from "@/types/auth.type";
-import prisma from "@/loaders/prisma";
-import Logger from "@/logger/logger";
 import { decrypt } from "@/utils/encryption";
 import type { AssignAdminRole } from "@/types/admin.type";
 import type { Login, Signup } from "@/types/auth.type";
-import { AuthRepository } from "@/repositories/auth.repository";
+import { AuthRepository } from "@/modules/auth/auth.repository";
 import {
   decodeToSessionId,
   generateSessionToken,
@@ -28,7 +21,7 @@ import { setCookie } from "@/utils/cookie";
 import type { Response } from "express";
 import { db } from "@/db";
 import { RoleRepository } from "@/modules/role/role.repository";
-import { ForbiddenException, InternalServerException, NotFoundException, UnauthorizedException } from "@/libs";
+import { ForbiddenException, InternalServerException, Logger, NotFoundException, UnauthorizedException } from "@/libs";
 
 export class AdminService {
   private adminRepository: AdminRepository;
@@ -60,7 +53,7 @@ export class AdminService {
   //Auth
   public async signUp(payload: Signup) {
     const existingAdmin = await this.authRepository.checkByEmail(payload.email);
-    if (existingAdmin) return ThrowInternalServer("Admin Already Registered");
+    if (existingAdmin) throw new InternalServerException({ message: "Admin Already Registered" });
 
     return db.transaction(async (tx) => {
       const hashedPassword = await hashPassword(payload.password);
@@ -108,8 +101,8 @@ export class AdminService {
       {
         token: sessionToken,
         two_factor_verified: !!auth.totp_key,
+        auth_id: auth.admin.id,
       },
-      { id: auth.admin.id, role: IdentityRole.ADMIN }
     );
     setCookie(res, COOKIE.ADMIN, sessionToken);
     return {
@@ -122,12 +115,11 @@ export class AdminService {
   public async getMe(token: string) {
     const sessionId = decodeToSessionId(token);
     const result = await this.sessionRepository.findSessionById(sessionId);
-    if (result === null) throw new ForbiddenException();
-    const { admin, ...session } = result;
-    if (admin === null) throw new UnauthorizedException();
-    const time = session.expires_at.getTime();
+    if (!result) throw new ForbiddenException();
+    if (!result.auth.admin) throw new UnauthorizedException();
+    const time = result.expires_at.getTime();
     await this.sessionService.checkAndExtendSession(sessionId, time);
-    return admin;
+    return result.auth.admin
   }
 
   public async signout(token: string) {
@@ -142,6 +134,8 @@ export class AdminService {
       const sessionId = decodeToSessionId(token);
       const admin = await this.getMe(token);
 
+      if (!admin) throw new ForbiddenException();
+
       try {
         key = decodeBase64(payload.key);
       } catch {
@@ -153,21 +147,22 @@ export class AdminService {
 
       const result = await db.transaction(async (tx) => {
         await this.sessionRepository.updateTwoFactorVerified(sessionId, tx);
-        // return await this.authRepository.updateTotp(
-        //   admin.auth_id,
-        //   {
-        //     code: payload.code,
-        //     key: key,
-        //   },
-        //   tx
-        // );
+        return await this.authRepository.updateTotp(
+          admin.auth_id,
+          {
+            code: payload.code,
+            key: key,
+          },
+          tx
+        );
       });
 
       return result;
     } catch (error) {
       Logger.error(error);
-      return ThrowInternalServer(
-        error instanceof Error ? error.message : String(error)
+      throw new InternalServerException({
+        error
+      }
       );
     }
   }

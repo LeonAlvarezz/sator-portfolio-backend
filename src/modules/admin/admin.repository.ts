@@ -29,13 +29,6 @@ export class AdminRepository {
     });
   }
   public async createAdmin(payload: CreateAdmin, auth_id: string, tx?: DrizzleTransaction) {
-    // return db.query.admins.create({
-    //   data: {
-    //     username: payload.username,
-    //     role_id: 1, //ADMIN By Defautl
-    //     auth_id,
-    //   },
-    // });
     const client = tx ? tx : db;
     const [result] = await client.insert(admins).values({
       username: payload.username,

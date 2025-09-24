@@ -14,7 +14,7 @@ import {
   hashPassword,
   verifyPassword,
 } from "@/utils/auth_util";
-import { AuthRepository } from "@/repositories/auth.repository";
+import { AuthRepository } from "@/modules/auth/auth.repository";
 import { SessionService } from "../modules/session/session.service";
 import prisma from "@/loaders/prisma";
 import { SessionRepository } from "@/modules/session/session.repository";
