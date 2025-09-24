@@ -1,10 +1,9 @@
 import { SESSION_EXPIRES_DATE_MS } from "@/constant/base";
 import { sha256 } from "@oslojs/crypto/sha2";
 import { encodeHexLowerCase } from "@oslojs/encoding";
-import type { Session } from "@prisma/client";
-import { SessionRepository } from "@/repositories/session.repository";
-import type { CreateSession } from "@/types/session.type";
-import { IdentityRole, type Identity } from "@/types/base.type";
+import { SessionRepository } from "@/modules/session/session.repository";
+import type { CreateSession } from "./dto/create-session.dto";
+import type { SessionEntity } from "./entity/session.entity";
 
 export class SessionService {
   private sessionRepository: SessionRepository;
@@ -14,18 +13,14 @@ export class SessionService {
   }
 
   public async createSession(
-    payload: CreateSession,
-    identity: Identity
-  ): Promise<Session> {
+    payload: CreateSession & { token: string },
+  ): Promise<SessionEntity> {
     const sessionId = encodeHexLowerCase(
       sha256(new TextEncoder().encode(payload.token))
     );
-    const session: Session = {
+    const session: CreateSession = {
       id: sessionId,
-      user_id: identity.role === IdentityRole.USER ? identity.id : null,
-      admin_id: identity.role === IdentityRole.ADMIN ? identity.id : null,
-      site_user_id:
-        identity.role === IdentityRole.SITE_USER ? identity.id : null,
+      auth_id: payload.auth_id,
       two_factor_verified: payload.two_factor_verified,
       expires_at: new Date(Date.now() + SESSION_EXPIRES_DATE_MS),
     };

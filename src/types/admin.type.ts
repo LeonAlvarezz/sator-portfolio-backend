@@ -8,11 +8,12 @@ export const CreateAdminSchema = z.object({
     .max(20, {
       message: "Username must not exceed 20 characters",
     }),
+  role_id: z.string(),
   profilePictureUrl: z.string().url().nullable().optional(),
 });
 
 export const AssignAdminRoleSchema = z.object({
-  role_id: z.number().min(1, { message: "Role ID is Required" }),
+  role_id: z.string().min(1, { message: "Role ID is Required" }),
   admin_id: z.string().min(1, { message: "Admin ID is Required" }),
 });
 

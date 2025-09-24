@@ -1,7 +1,7 @@
 import prisma from "@/loaders/prisma";
 import type { Signup } from "@/types/auth.type";
 import type { Prisma } from "@prisma/client";
-import type { EncryptedUpdateTotp } from "./admin.repository";
+import type { EncryptedUpdateTotp } from "../modules/admin/admin.repository";
 import { encryptToBuffer } from "@/utils/encryption";
 
 export class AuthRepository {

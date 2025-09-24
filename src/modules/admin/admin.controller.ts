@@ -1,6 +1,6 @@
 import Logger from "@/logger/logger";
 import logger from "@/logger/logger";
-import { AdminService } from "@/services/admin.service";
+import { AdminService } from "@/modules/admin/admin.service";
 import { AssignAdminRoleSchema } from "@/types/admin.type";
 import { LoginSchema, SignUpSchema, UpdateTotpSchema } from "@/types/auth.type";
 import { getAdminCookie } from "@/utils/cookie";

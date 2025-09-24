@@ -14,7 +14,7 @@ import {
 } from "@/utils/exception";
 import { sumArray } from "@/utils/string";
 import { getPaginationMetadata } from "@/utils/pagination";
-import { AdminService } from "./admin.service";
+import { AdminService } from "../modules/admin/admin.service";
 import { ChatRoomService } from "./chat-room.service";
 import { ChatMessageService } from "./chat-message.service";
 import { UserRepository } from "@/repositories/user.repository";

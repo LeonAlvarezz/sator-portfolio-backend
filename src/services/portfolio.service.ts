@@ -14,7 +14,7 @@ import { getSiteUserCookie } from "@/utils/cookie";
 import { SiteUserRepository } from "@/repositories/site-user.repository";
 import { PortfolioMetricRepository } from "@/repositories/portfolio-metric.repository";
 import { IdentityRole, type Identity } from "@/types/base.type";
-import { AdminService } from "./admin.service";
+import { AdminService } from "../modules/admin/admin.service";
 import { ContentStatus } from "@/enum/content.enum";
 
 export class PortfolioService {

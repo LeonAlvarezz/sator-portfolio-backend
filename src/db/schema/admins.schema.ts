@@ -8,7 +8,6 @@ export const admins = pgTable('admins', {
   id: uuid().defaultRandom().notNull().primaryKey(),
   username: varchar({ length: 255 }).notNull().unique(),
   profile_url: text(),
-  password: varchar({ length: 255 }).notNull(),
   role_id: uuid().references(() => roles.id),
   auth_id: uuid().references(() => auths.id),
   totp_key: bytea(),

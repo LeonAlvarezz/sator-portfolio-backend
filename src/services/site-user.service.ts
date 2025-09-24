@@ -19,8 +19,8 @@ import {
 } from "@/utils/auth_util";
 import prisma from "@/loaders/prisma";
 import { AuthRepository } from "@/repositories/auth.repository";
-import { SessionRepository } from "@/repositories/session.repository";
-import { SessionService } from "./session.service";
+import { SessionRepository } from "@/modules/session/session.repository";
+import { SessionService } from "../modules/session/session.service";
 import { SiteMetricRepository } from "@/repositories/site-metric-repository";
 import { IdentityRole } from "@/types/base.type";
 import type { UpdateTotp } from "@/types/auth.type";

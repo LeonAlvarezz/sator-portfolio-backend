@@ -12,7 +12,7 @@ import { WSEventType, WSReceiver } from "@/enum/ws-event.enum";
 import { WSService } from "./ws.service";
 import { UnreadMessageService } from "./unread-message.service";
 import { UserService } from "./user.service";
-import { AdminService } from "./admin.service";
+import { AdminService } from "../modules/admin/admin.service";
 import { ChatRoomService } from "./chat-room.service";
 import type { Prisma } from "@prisma/client";
 

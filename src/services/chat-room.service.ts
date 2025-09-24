@@ -13,7 +13,7 @@ import { WSEventType, WSReceiver } from "@/enum/ws-event.enum";
 import { WSService } from "./ws.service";
 import { UnreadMessageService } from "./unread-message.service";
 import { UserService } from "./user.service";
-import { AdminRepository } from "@/repositories/admin.repository";
+import { AdminRepository } from "@/modules/admin/admin.repository";
 import { UserRepository } from "@/repositories/user.repository";
 import { IdentityRole } from "@/types/base.type";
 

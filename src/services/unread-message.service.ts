@@ -5,7 +5,7 @@ import { ThrowInternalServer, ThrowUnauthorized } from "@/utils/exception";
 import type { Prisma } from "@prisma/client";
 import type { Request } from "express";
 import { UserService } from "./user.service";
-import { AdminService } from "./admin.service";
+import { AdminService } from "../modules/admin/admin.service";
 import { getAdminCookie, getUserCookie } from "@/utils/cookie";
 import { env } from "@/config";
 

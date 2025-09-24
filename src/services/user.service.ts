@@ -15,9 +15,9 @@ import {
   verifyPassword,
 } from "@/utils/auth_util";
 import { AuthRepository } from "@/repositories/auth.repository";
-import { SessionService } from "./session.service";
+import { SessionService } from "../modules/session/session.service";
 import prisma from "@/loaders/prisma";
-import { SessionRepository } from "@/repositories/session.repository";
+import { SessionRepository } from "@/modules/session/session.repository";
 import { IdentityRole } from "@/types/base.type";
 
 export class UserService {

@@ -3,7 +3,7 @@ import type { CreateCategory } from "@/types/category.type";
 import { ThrowUnauthorized } from "@/utils/exception";
 import type { Request } from "express";
 import { SiteUserService } from "./site-user.service";
-import { AdminService } from "./admin.service";
+import { AdminService } from "../modules/admin/admin.service";
 import { getAdminCookie, getSiteUserCookie } from "@/utils/cookie";
 import { env } from "@/config";
 

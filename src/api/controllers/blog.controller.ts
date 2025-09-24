@@ -11,7 +11,7 @@ import { getAdminCookie, getSiteUserCookie } from "@/utils/cookie";
 import { ThrowForbidden, ThrowUnauthorized } from "@/utils/exception";
 import type { NextFunction, Request, Response } from "express";
 import { env } from "@/config";
-import { AdminService } from "@/services/admin.service";
+import { AdminService } from "@/modules/admin/admin.service";
 import { SimpleSuccess } from "@/response/response";
 
 export class BlogController {

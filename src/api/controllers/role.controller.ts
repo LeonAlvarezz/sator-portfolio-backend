@@ -1,5 +1,5 @@
 import Logger from "@/logger/logger";
-import { RoleService } from "@/services/role.service";
+import { RoleService } from "@/modules/role/role.service";
 import { BaseModelSchema } from "@/types/base.type";
 import {
   CheckRoleSchema,

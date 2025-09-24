@@ -1,10 +1,10 @@
 import { ThrowForbidden, ThrowUnauthorized } from "@/utils/exception";
 import type { Request, Response, NextFunction } from "express";
 import type { Admin } from "@prisma/client";
-import { RoleRepository } from "@/repositories/role.repository";
+import { RoleRepository } from "@/modules/role/role.repository";
 import { ResourceRepository } from "@/repositories/resource.repository";
 import { getAdminCookie, getUserCookie } from "@/utils/cookie";
-import { AdminService } from "@/services/admin.service";
+import { AdminService } from "@/modules/admin/admin.service";
 import { UserService } from "@/services/user.service";
 import { env } from "@/config";
 

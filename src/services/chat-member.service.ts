@@ -1,4 +1,4 @@
-import { AdminRepository } from "@/repositories/admin.repository";
+import { AdminRepository } from "@/modules/admin/admin.repository";
 import { ChatMemberRepository } from "@/repositories/chat-member.repository";
 import { UserRepository } from "@/repositories/user.repository";
 import type {
@@ -10,7 +10,7 @@ import { ChatMemberRole, ChatMessageType, Prisma } from "@prisma/client";
 import { ChatMessageService } from "./chat-message.service";
 import prisma from "@/loaders/prisma";
 import { UnreadMessageService } from "./unread-message.service";
-import { AdminService } from "./admin.service";
+import { AdminService } from "../modules/admin/admin.service";
 
 type ChatMemberWithAdminUser = Prisma.ChatMemberGetPayload<{
   include: { admin: true; user: true };

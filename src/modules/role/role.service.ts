@@ -2,7 +2,7 @@ import prisma from "@/loaders/prisma";
 import Logger from "@/logger/logger";
 import { PermissionFlagRepository } from "@/repositories/permission-flag.repository";
 import { ResourceRepository } from "@/repositories/resource.repository";
-import { RoleRepository } from "@/repositories/role.repository";
+import { RoleRepository } from "@/modules/role/role.repository";
 import type { BaseModel } from "@/types/base.type";
 import type { CheckRole, CreateRole, UpdateRole } from "@/types/role.type";
 import { ThrowForbidden, ThrowInternalServer } from "@/utils/exception";
