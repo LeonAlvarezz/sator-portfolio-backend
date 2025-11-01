@@ -75,8 +75,9 @@ services:
       - postgres
     links:
       - redis
+      - postgres
     ports:
-      - 3100:3000
+      - 3000:3000
 
 networks:
   sator-network:

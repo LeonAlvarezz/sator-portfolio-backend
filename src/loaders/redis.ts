@@ -5,7 +5,7 @@ let redisClient: RedisClientType;
 
 export function redisLoader() {
   redisClient = createClient({
-    url: `redis://${environment.redis.host}:6379`,
+    url: `redis://${environment.redis.host ?? "localhost"}:6379`,
   });
 
   redisClient.on("error", (err) => {
