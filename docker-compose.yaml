@@ -1,6 +1,4 @@
-networks:
-  app:
-    driver: bridge
+
 services:
   redis:
     image: redis:7.2-alpine
@@ -11,43 +9,72 @@ services:
     volumes:
       - redis-data:/data
     networks:
-      - app
+      - sator-network
+
+  postgres:
+    image: postgres:16
+    volumes:
+      - 'postgres-data:/var/lib/postgresql/data'
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - 'pg_isready -U affine'
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    environment:
+      - 'POSTGRES_USER=${SERVICE_POSTGRES_USER}'
+      - 'POSTGRES_PASSWORD=${SERVICE_POSTGRES_PASSWORD}'
+      - 'POSTGRES_DB=${SERVICE_POSTGRES_DB}'
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    networks:
+      - sator-network
+
 
   sator-backend-api:
     build:
       context: .
       dockerfile: deployment/Dockerfile${CUSTOM}
     environment:
-      NODE_ENV: ${NODE_ENV}
-      PASSWORD_SALT: ${PASSWORD_SALT}
-      DEFAULT_PASSWORD: ${DEFAULT_PASSWORD}
-      REDIS_URL: ${REDIS_URL}
-      PORT: ${PORT}
-      SOCKET_PORT: ${SOCKET_PORT}
-      LOG_LEVEL: ${LOG_LEVEL}
-      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
-      DEFAULT_OTP_CODE: ${DEFAULT_OTP_CODE}
-      AWS_S3_BUCKET_NAME: ${AWS_S3_BUCKET_NAME}
-      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
-      AWS_ACCESS_KEY: ${AWS_ACCESS_KEY}
-      AWS_REGION: ${AWS_REGION}
-      AWS_BUCKET_NAME: ${AWS_BUCKET_NAME}
-      AWS_PUBLIC_BUCKET_URL: ${AWS_PUBLIC_BUCKET_URL}
-      API_KEY_SECRET: ${API_KEY_SECRET}
-      API_KEY_ALGO: ${API_KEY_ALGO}
-      API_KEY_IV: ${API_KEY_IV}
-      DATABASE_URL: ${DATABASE_URL}
+      - NODE_ENV: ${NODE_ENV}
+      - PASSWORD_SALT: ${PASSWORD_SALT}
+      - DEFAULT_PASSWORD: ${DEFAULT_PASSWORD}
+      - REDIS_URL: ${REDIS_URL}
+      - PORT: ${PORT}
+      - SOCKET_PORT: ${SOCKET_PORT}
+      - LOG_LEVEL: ${LOG_LEVEL}
+      - ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+      - DEFAULT_OTP_CODE: ${DEFAULT_OTP_CODE}
+      - AWS_S3_BUCKET_NAME: ${AWS_S3_BUCKET_NAME}
+      - AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      - AWS_ACCESS_KEY: ${AWS_ACCESS_KEY}
+      - AWS_REGION: ${AWS_REGION}
+      - AWS_BUCKET_NAME: ${AWS_BUCKET_NAME}
+      - AWS_PUBLIC_BUCKET_URL: ${AWS_PUBLIC_BUCKET_URL}
+      - API_KEY_SECRET: ${API_KEY_SECRET}
+      - API_KEY_ALGO: ${API_KEY_ALGO}
+      - API_KEY_IV: ${API_KEY_IV}
+      - 'DATABASE_URL= postgres://${SERVICE_USER_POSTGRES}:${SERVICE_PASSWORD_POSTGRES}@postgres:5432/${SERVICE_POSTGRES_DB}'
+
     volumes:
       - api-data:/app
     networks:
-      - app
+      - sator-network
     depends_on:
       - redis
+      - postgres
     links:
       - redis
     ports:
       - 3100:3000
 
+networks:
+  sator-network:
+    driver: bridge
+
 volumes:
   api-data:
   redis-data:
+  postgres-data:
+
+  
