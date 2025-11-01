@@ -41,7 +41,7 @@ services:
   sator-backend-api:
     build:
       context: .
-      dockerfile: deployment/Dockerfile${CUSTOM}
+      dockerfile: deployment/Dockerfile
     environment:
       - NODE_ENV: ${NODE_ENV}
       - PASSWORD_SALT: ${PASSWORD_SALT}
