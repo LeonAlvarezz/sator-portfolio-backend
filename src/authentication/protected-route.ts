@@ -1,6 +1,5 @@
 import { ThrowForbidden, ThrowUnauthorized } from "@/utils/exception";
 import type { Request, Response, NextFunction } from "express";
-import type { Admin } from "@prisma/client";
 import { RoleRepository } from "@/modules/role/role.repository";
 import { ResourceRepository } from "@/repositories/resource.repository";
 import { getAdminCookie, getUserCookie } from "@/utils/cookie";
@@ -50,14 +49,14 @@ function protectedRoute(
       }
 
       if (options && isAdminRoute) {
-        const role = await roleRepository.findById((auth as Admin).role_id);
+        const role = await roleRepository.findById(auth.role_id);
         if (!role) {
           return ThrowForbidden();
         }
 
         const resource = await resourceRepository.findByName(options.resource);
 
-        const permission = role.permissions.find(
+        const permission = role.permission_flags.find(
           (p) => p.resource_id === resource?.id
         );
 

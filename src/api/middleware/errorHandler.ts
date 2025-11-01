@@ -1,5 +1,5 @@
 import type { ErrorRequestHandler, Response } from "express";
-import logger from "@/logger/logger";
+import { logger } from "@/libs";
 import { isHttpError } from "http-errors";
 import { ZodError } from "zod";
 // Do not try to remove unused params as it will result in the application return the error as HTML

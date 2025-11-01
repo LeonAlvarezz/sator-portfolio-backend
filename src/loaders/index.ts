@@ -1,4 +1,4 @@
-import Logger from "@/logger/logger";
+import { logger } from "@/libs";
 import expressLoader from "./express";
 import { redisLoader } from "./redis";
 import { socketLoader } from "./socket";
@@ -9,18 +9,18 @@ export default async ({ expressApp }: { expressApp: Express }) => {
     console.log("Starting loader process...");
 
     // Ensure DB connection is established
-    Logger.info("✌️ DB loaded and connected!");
+    logger.info("✌️ DB loaded and connected!");
 
     // Dependency Injection logging
-    Logger.info("✌️ Dependency Injector loaded");
+    logger.info("✌️ Dependency Injector loaded");
 
     // Apply express loader
-    await socketLoader({ app: expressApp });
-    await expressLoader({ app: expressApp });
-    await redisLoader();
+    socketLoader({ app: expressApp });
+    expressLoader({ app: expressApp });
+    redisLoader();
 
     // Log after express loader
-    Logger.info("✌️ Express loaded");
+    logger.info("✌️ Express loaded");
   } catch (error) {
     console.error("Error in loader process:", error);
     throw error;

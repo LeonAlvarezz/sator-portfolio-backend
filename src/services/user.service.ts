@@ -7,7 +7,6 @@ import { ThrowInternalServer, ThrowUnauthorized } from "@/utils/exception";
 import { verifyTOTP } from "@oslojs/otp";
 import { decrypt } from "@/utils/encryption";
 import { CacheService } from "./cache.service";
-import Logger from "@/logger/logger";
 import {
   decodeToSessionId,
   generateSessionToken,
@@ -16,9 +15,10 @@ import {
 } from "@/utils/auth_util";
 import { AuthRepository } from "@/modules/auth/auth.repository";
 import { SessionService } from "../modules/session/session.service";
-import prisma from "@/loaders/prisma";
 import { SessionRepository } from "@/modules/session/session.repository";
 import { IdentityRole } from "@/types/base.type";
+import { db } from "@/db";
+import { logger } from "@/libs";
 
 export class UserService {
   private _userRepository: UserRepository;
@@ -51,7 +51,7 @@ export class UserService {
 
   public async signup(payload: Signup) {
     const passwordHash = await hashPassword(payload.password);
-    return prisma.$transaction(async (tx) => {
+    return db.transaction(async (tx) => {
       const auth = await this._authRepository.createAuth(
         {
           email: payload.email,
@@ -99,7 +99,7 @@ export class UserService {
     try {
       this._cacheService.saveAuth(sessionToken, auth);
     } catch (error) {
-      Logger.error(error);
+      logger.error(error);
     }
     if (!auth.user) return ThrowUnauthorized("User cannot be found");
 

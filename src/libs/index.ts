@@ -1,2 +1,2 @@
-export { default as Logger } from "./winston";
+export { default as logger } from "./winston";
 export * from "./errors";

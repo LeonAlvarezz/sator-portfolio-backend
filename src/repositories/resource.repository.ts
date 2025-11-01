@@ -1,27 +1,22 @@
-import prisma from "@/loaders/prisma";
+import { db, type DrizzleTransaction } from "@/db";
+import { resources } from "@/db/schema";
 import type { CreateResource } from "@/types/resource.type";
-import type { Prisma } from "@prisma/client";
+import { eq } from "drizzle-orm";
 
 export class ResourceRepository {
   public async findAll() {
-    return await prisma.resource.findMany();
+    return await db.query.resources.findMany();
   }
   public async create(payload: CreateResource) {
-    return await prisma.resource.create({
-      data: {
-        name: payload.name,
-      },
+    return await db.insert(resources).values({
+      name: payload.name,
     });
   }
 
-  public async findByName(name: string, tx?: Prisma.TransactionClient) {
-    const client = tx ? tx.resource : prisma.resource;
-    return await client.findFirst({
-      where: {
-        name: {
-          equals: name,
-        },
-      },
+  public async findByName(name: string, tx?: DrizzleTransaction) {
+    const client = tx ? tx : db;
+    return await client.query.resources.findFirst({
+      where: eq(resources.name, name),
     });
   }
 }
