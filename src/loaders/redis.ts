@@ -1,9 +1,12 @@
+import environment from "@/config/environment";
 import { createClient, type RedisClientType } from "redis";
 
 let redisClient: RedisClientType;
 
 export function redisLoader() {
-  redisClient = createClient({ url: process.env.REDIS_URL });
+  redisClient = createClient({
+    url: `${environment.redis.host}://localhost:6379`,
+  });
 
   redisClient.on("error", (err) => {
     console.error("Redis Client Error", err);

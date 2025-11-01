@@ -48,4 +48,7 @@ export default {
   encryptionCode: process.env.ENCRYPTION_KEY || "",
   defaultOTPCode: process.env.DEFAULT_OTP_CODE || "",
   defaultPassword: process.env.DEFAULT_PASSWORD || "",
+  redis: {
+    host: process.env.REDIS_SERVER_HOST,
+  },
 };
