@@ -4,6 +4,7 @@ import {
   CreateChatMemberSchema,
   InviteChatMemberSchema,
 } from "@/types/chat-member.type";
+import { getAdminCookie } from "@/utils/cookie";
 import type { Request, Response, NextFunction } from "express";
 
 export class ChatMemberController {
@@ -54,8 +55,9 @@ export class ChatMemberController {
   public remove = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const params = BaseModelSchema.parse(req.params);
+      const token = getAdminCookie(req);
       const chatMember = await this.chatMemberService.remove(
-        req,
+        token,
         params.id as string
       );
       res.json({ data: chatMember });
@@ -66,8 +68,9 @@ export class ChatMemberController {
   public leave = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const params = BaseModelSchema.parse(req.params);
+      const token = getAdminCookie(req);
       const chatMember = await this.chatMemberService.leave(
-        req,
+        token,
         params.id as string
       );
       res.json({ data: chatMember });
