@@ -1,53 +1,89 @@
-networks:
-  app:
-    driver: bridge
+
 services:
   redis:
-    image: redis:7.2-alpine
-    restart: always
-    ports:
-      - "6100:6379"
+    image: redis
+    healthcheck:
+      test:
+        - CMD
+        - redis-cli
+        - '--raw'
+        - incr
+        - ping
+      interval: 10s
+      timeout: 5s
+      retries: 5
     command: redis-server --loglevel warning --requirepass password
     volumes:
       - redis-data:/data
+
+    ports:
+      - 6379:6379
     networks:
-      - app
+      - sator-network
+
+  postgres:
+    image: postgres:16
+    volumes:
+      - 'postgres-data:/var/lib/postgresql/data'
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - 'pg_isready -U postgres'
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    environment:
+      - 'POSTGRES_USER=${SERVICE_POSTGRES_USER}'
+      - 'POSTGRES_PASSWORD=${SERVICE_POSTGRES_PASSWORD}'
+      - 'POSTGRES_DB=${SERVICE_POSTGRES_DB}'
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    networks:
+      - sator-network
+
 
   sator-backend-api:
     build:
       context: .
-      dockerfile: deployment/Dockerfile${CUSTOM}
+      dockerfile: deployment/Dockerfile
     environment:
-      NODE_ENV: ${NODE_ENV}
-      PASSWORD_SALT: ${PASSWORD_SALT}
-      DEFAULT_PASSWORD: ${DEFAULT_PASSWORD}
-      REDIS_URL: ${REDIS_URL}
-      PORT: ${PORT}
-      SOCKET_PORT: ${SOCKET_PORT}
-      LOG_LEVEL: ${LOG_LEVEL}
-      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
-      DEFAULT_OTP_CODE: ${DEFAULT_OTP_CODE}
-      AWS_S3_BUCKET_NAME: ${AWS_S3_BUCKET_NAME}
-      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
-      AWS_ACCESS_KEY: ${AWS_ACCESS_KEY}
-      AWS_REGION: ${AWS_REGION}
-      AWS_BUCKET_NAME: ${AWS_BUCKET_NAME}
-      AWS_PUBLIC_BUCKET_URL: ${AWS_PUBLIC_BUCKET_URL}
-      API_KEY_SECRET: ${API_KEY_SECRET}
-      API_KEY_ALGO: ${API_KEY_ALGO}
-      API_KEY_IV: ${API_KEY_IV}
-      DATABASE_URL: ${DATABASE_URL}
+      - NODE_ENV=${NODE_ENV}
+      - PASSWORD_SALT=${PASSWORD_SALT}
+      - DEFAULT_PASSWORD=${DEFAULT_PASSWORD}
+      - REDIS_SERVER_HOST=redis
+      - PORT=${PORT}
+      - SOCKET_PORT=${SOCKET_PORT}
+      - LOG_LEVEL=${LOG_LEVEL}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - DEFAULT_OTP_CODE=${DEFAULT_OTP_CODE}
+      - AWS_S3_BUCKET_NAME=${AWS_S3_BUCKET_NAME}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
+      - AWS_REGION=${AWS_REGION}
+      - AWS_BUCKET_NAME=${AWS_BUCKET_NAME}
+      - AWS_PUBLIC_BUCKET_URL=${AWS_PUBLIC_BUCKET_URL}
+      - API_KEY_SECRET=${API_KEY_SECRET}
+      - API_KEY_ALGO=${API_KEY_ALGO}
+      - API_KEY_IV=${API_KEY_IV}
+      - DATABASE_URL=postgres://${SERVICE_POSTGRES_USER}:${SERVICE_POSTGRES_PASSWORD}@postgres:5432/${SERVICE_POSTGRES_DB}
+
     volumes:
       - api-data:/app
     networks:
-      - app
+      - sator-network
     depends_on:
       - redis
+      - postgres
     links:
       - redis
-    ports:
-      - 3100:3000
+      - postgres
+
+networks:
+  sator-network:
+    driver: bridge
 
 volumes:
   api-data:
   redis-data:
+  postgres-data:
+
+  
