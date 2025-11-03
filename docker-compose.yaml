@@ -35,7 +35,6 @@ services:
       - 'POSTGRES_USER=${SERVICE_POSTGRES_USER}'
       - 'POSTGRES_PASSWORD=${SERVICE_POSTGRES_PASSWORD}'
       - 'POSTGRES_DB=${SERVICE_POSTGRES_DB}'
-      - PGDATA=/var/lib/postgresql/data/pgdata
     ports:
       - 48621:5432
     networks:
