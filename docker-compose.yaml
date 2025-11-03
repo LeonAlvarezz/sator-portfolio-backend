@@ -1,6 +1,6 @@
 
 services:
-  redis:
+  backend-redis:
     image: redis
     healthcheck:
       test:
@@ -20,7 +20,7 @@ services:
     networks:
       - sator-network
 
-  postgres:
+  backend-postgres:
     image: postgres:16
     volumes:
       - 'postgres-data:/var/lib/postgresql/data'
