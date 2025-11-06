@@ -94,6 +94,7 @@ export class AuthService {
     await this.sessionService.invalidateSession(id);
   }
 
+  //TODO: Refine return values
   public async getMe(token: string): Promise<Auth> {
     const sessionId = authUtil.decodeToSessionId(token);
     const result = await this.sessionService.findById(sessionId);
