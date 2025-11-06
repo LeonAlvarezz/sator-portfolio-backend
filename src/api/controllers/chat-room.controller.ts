@@ -5,7 +5,7 @@ import {
   CreateChatRoomSchema,
 } from "@/types/chat-room.type";
 import { BaseModelSchema } from "@/core/types/base.type";
-import { getUserCookie } from "@/utils/cookie";
+import { cookie, COOKIE_ENTITY } from "@/libs/cookie";
 
 export class ChatRoomController {
   private chatRoomService: ChatRoomService;
@@ -59,7 +59,7 @@ export class ChatRoomController {
   ) => {
     try {
       const filter = ChatRoomFilterSchema.parse(req.query);
-      const token = getUserCookie(req);
+      const token = cookie.get(req, COOKIE_ENTITY.USER);
       const chatRooms = await this.chatRoomService.findUserChatRoom(
         token,
         filter

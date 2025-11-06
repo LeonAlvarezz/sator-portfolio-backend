@@ -1,7 +1,7 @@
 import { UnauthorizedException } from "@/core/response/error/exception";
 import { SiteUserService } from "@/modules/site-user/site-user.service";
 import { StatisticService } from "@/services/statistic.service";
-import { getSiteUserCookie } from "@/utils/cookie";
+import { cookie, COOKIE_ENTITY } from "@/libs/cookie";
 import type { NextFunction, Response, Request } from "express";
 
 export class StatisticController {
@@ -17,7 +17,7 @@ export class StatisticController {
     next: NextFunction
   ) => {
     try {
-      const sessionToken = getSiteUserCookie(req);
+      const sessionToken = cookie.get(req, COOKIE_ENTITY.SITE_USER);
       const siteUser = await this.siteUserService.getMe(sessionToken);
       if (!siteUser) throw new UnauthorizedException();
       const metric = await this.statisticService.getSiteUserTotalMetric(
@@ -36,7 +36,7 @@ export class StatisticController {
     next: NextFunction
   ) => {
     try {
-      const sessionToken = getSiteUserCookie(req);
+      const sessionToken = cookie.get(req, COOKIE_ENTITY.SITE_USER);
       const siteUser = await this.siteUserService.getMe(sessionToken);
       if (!siteUser) throw new UnauthorizedException();
       const metric = await this.statisticService.getSiteUserDailyMetric(

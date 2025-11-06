@@ -3,9 +3,9 @@ import type { CreateCategory } from "@/types/category.type";
 import type { Request } from "express";
 import { SiteUserService } from "../modules/site-user/site-user.service";
 import { AdminService } from "../modules/admin/admin.service";
-import { getAdminCookie, getSiteUserCookie } from "@/utils/cookie";
 import { env } from "@/libs";
 import { UnauthorizedException } from "@/core/response/error/exception";
+import { cookie, COOKIE_ENTITY } from "@/libs/cookie";
 
 export class CategoryService {
   private categoryRepository: CategoryRepository;
@@ -20,14 +20,16 @@ export class CategoryService {
     return this.categoryRepository.findAll();
   }
   public async findBySiteUser(req: Request) {
-    const sessionToken = getSiteUserCookie(req);
+    const sessionToken = cookie.get(req, COOKIE_ENTITY.SITE_USER);
     const siteUser = await this.siteUserService.getMe(sessionToken);
     if (!siteUser) throw new UnauthorizedException();
     return this.categoryRepository.findBySiteUser(siteUser.id as string);
   }
   public async create(req: Request, payload: CreateCategory) {
     const isAdmin = req.originalUrl.startsWith(`${env.API_PREFIX}/admin`);
-    const sessionToken = isAdmin ? getAdminCookie(req) : getSiteUserCookie(req);
+    const sessionToken = isAdmin
+      ? cookie.get(req, COOKIE_ENTITY.ADMIN)
+      : cookie.get(req, COOKIE_ENTITY.SITE_USER);
     const auth = isAdmin
       ? await this.adminService.getMe(sessionToken)
       : await this.siteUserService.getMe(sessionToken);

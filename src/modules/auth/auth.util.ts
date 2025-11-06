@@ -19,8 +19,7 @@ export const authUtil = {
     return token;
   },
 
-  hashPassword: (password: string) =>
-    bcrypt.hash(password, Number(env.PASSWORD_SALT)),
+  hashPassword: (password: string) => bcrypt.hash(password, env.PASSWORD_SALT),
 
   verifyPassword: (password: string, hashedPassword: string) =>
     bcrypt.compare(password, hashedPassword),

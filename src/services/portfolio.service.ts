@@ -5,7 +5,6 @@ import type { CreatePortfolio, PortfolioFilter } from "@/types/portfolio.type";
 import { getPaginationMetadata } from "@/utils/pagination";
 import type { Request } from "express";
 import { SiteUserService } from "../modules/site-user/site-user.service";
-import { getSiteUserCookie } from "@/utils/cookie";
 import { SiteUserRepository } from "@/modules/site-user/site-user.repository";
 import { PortfolioMetricRepository } from "@/repositories/portfolio-metric.repository";
 import { IdentityRole, type Identity } from "@/core/types/base.type";
@@ -16,6 +15,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from "@/core/response/error/exception";
+import { cookie, COOKIE_ENTITY } from "@/libs/cookie";
 
 export class PortfolioService {
   private portfolioRepository: PortfolioRepository;
@@ -60,7 +60,7 @@ export class PortfolioService {
   //====== Site User =====
 
   public async paginateBySiteUser(req: Request, filter: PortfolioFilter) {
-    const sessionToken = getSiteUserCookie(req);
+    const sessionToken = cookie.get(req, COOKIE_ENTITY.SITE_USER);
     const siteUser = await this.siteUserService.getMe(sessionToken);
     if (!siteUser) throw new UnauthorizedException();
     const count = await this.portfolioRepository.count(filter, {

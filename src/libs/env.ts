@@ -15,8 +15,9 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 enum LogLevelEnum {
-  SILLY = "silly",
+  DEBUG = "debug",
   INFO = "info",
+  WARN = "warn",
 }
 
 enum NODE_ENV_ENUM {
@@ -26,17 +27,17 @@ enum NODE_ENV_ENUM {
 }
 
 const envSchema = z.object({
-  NODE_ENV: z.nativeEnum(NODE_ENV_ENUM).default(NODE_ENV_ENUM.DEVELOPMENT),
+  NODE_ENV: z.enum(NODE_ENV_ENUM).default(NODE_ENV_ENUM.DEVELOPMENT),
   PORT: z.coerce.number(),
   DATABASE_URL: z.string(),
   PASSWORD_SALT: z.coerce.number().default(10),
-  LOG_LEVEL: z.nativeEnum(LogLevelEnum).default(LogLevelEnum.SILLY),
   API_PREFIX: z.string(),
   API_KEY_ALGO: z.string().default("H256"),
   API_KEY_SECRET: z.string(),
   ENCRYPTION_KEY: z.string(),
   DEFAULT_PASSWORD: z.string(),
   DEFAULT_OTP_CODE: z.string(),
+  LOG_LEVEL: z.enum(LogLevelEnum).default(LogLevelEnum.DEBUG),
 });
 
 export const env = envSchema.parse(process.env);

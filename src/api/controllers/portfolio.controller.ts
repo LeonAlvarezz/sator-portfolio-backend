@@ -1,5 +1,4 @@
 import { env } from "@/libs";
-import { SimpleSuccess } from "@/core/response/response";
 import { PortfolioService } from "@/services/portfolio.service";
 import {
   BaseModelSchema,
@@ -10,9 +9,9 @@ import {
   CreatePortfolioSchema,
   PortfolioFilterSchema,
 } from "@/types/portfolio.type";
-import { getAdminCookie, getSiteUserCookie } from "@/utils/cookie";
 import type { NextFunction, Response, Request } from "express";
 import { UnauthorizedException } from "@/core/response/error/exception";
+import { cookie, COOKIE_ENTITY } from "@/libs/cookie";
 
 export class PortfolioController {
   private portfolioService: PortfolioService;
@@ -148,8 +147,8 @@ export class PortfolioController {
         : IdentityRole.SITE_USER;
       const token =
         role === IdentityRole.ADMIN
-          ? getAdminCookie(req)
-          : getSiteUserCookie(req);
+          ? cookie.get(req, COOKIE_ENTITY.ADMIN)
+          : cookie.get(req, COOKIE_ENTITY.SITE_USER);
       const portfolio = await this.portfolioService.create(
         token,
         validated,
@@ -176,8 +175,8 @@ export class PortfolioController {
         : IdentityRole.SITE_USER;
       const token =
         role === IdentityRole.ADMIN
-          ? getAdminCookie(req)
-          : getSiteUserCookie(req);
+          ? cookie.get(req, COOKIE_ENTITY.ADMIN)
+          : cookie.get(req, COOKIE_ENTITY.SITE_USER);
       const portfolio = await this.portfolioService.update(
         token,
         params.id as string,
@@ -251,7 +250,7 @@ export class PortfolioController {
         slug: req.params.slug,
       });
       await this.portfolioService.increaseView(key, params.slug);
-      SimpleSuccess(res);
+      res.simpleSuccess();
     } catch (error) {
       next(error);
     }

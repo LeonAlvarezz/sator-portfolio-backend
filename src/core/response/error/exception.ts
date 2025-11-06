@@ -20,7 +20,7 @@ export enum DefaultErrorMessage {
   REQUEST_TIMEOUT = "Request timeout",
 }
 
-export type CustomError = {
+export type CustomException = {
   status: number;
   message: string;
   metadata?: Record<string, string>;
@@ -31,7 +31,7 @@ export type ErrorParams = {
   message?: string;
   options?: Record<string, any>;
 };
-export class CriticalError extends Error {
+export class CriticalException extends Error {
   constructor(
     public status: number,
     message: string,
@@ -39,10 +39,17 @@ export class CriticalError extends Error {
   ) {
     super(message);
     this.name = this.constructor.name;
+
+    // Capture proper stack trace
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, this.constructor);
+    } else {
+      this.stack = new Error(message).stack;
+    }
   }
 }
 
-export class BadRequestException extends CriticalError {
+export class BadRequestException extends CriticalException {
   constructor(params?: ErrorParams) {
     super(
       ErrorCode.BAD_REQUEST,
@@ -52,7 +59,7 @@ export class BadRequestException extends CriticalError {
   }
 }
 
-export class NotFoundException extends CriticalError {
+export class NotFoundException extends CriticalException {
   constructor(params?: ErrorParams) {
     super(
       ErrorCode.NOT_FOUND,
@@ -62,7 +69,7 @@ export class NotFoundException extends CriticalError {
   }
 }
 
-export class UnauthorizedException extends CriticalError {
+export class UnauthorizedException extends CriticalException {
   constructor(params?: ErrorParams) {
     super(
       ErrorCode.UNAUTHORIZED,
@@ -72,7 +79,7 @@ export class UnauthorizedException extends CriticalError {
   }
 }
 
-export class ForbiddenException extends CriticalError {
+export class ForbiddenException extends CriticalException {
   constructor(params?: ErrorParams) {
     super(
       ErrorCode.FORBIDDEN,
@@ -82,7 +89,7 @@ export class ForbiddenException extends CriticalError {
   }
 }
 
-export class InternalServerException extends CriticalError {
+export class InternalServerException extends CriticalException {
   constructor(params?: ErrorParams) {
     super(
       ErrorCode.INTERNAL_SERVER,
@@ -92,7 +99,7 @@ export class InternalServerException extends CriticalError {
   }
 }
 
-export class ConflictException extends CriticalError {
+export class ConflictException extends CriticalException {
   constructor(params?: ErrorParams) {
     super(
       ErrorCode.CONFLICT,

@@ -54,11 +54,12 @@ export class AuthRepository {
     tx?: DrizzleTransaction
   ) {
     const encrypted = encryptToBuffer(payload.key);
+    const encryptedUint8 = new Uint8Array(encrypted);
     const client = tx ? tx : db;
     const [result] = await client
       .update(auths)
       .set({
-        totp_key: encrypted,
+        totp_key: encryptedUint8,
       })
       .where(eq(auths.id, id))
       .returning();

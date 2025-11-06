@@ -9,10 +9,7 @@ import { RoleRepository } from "@/modules/role/role.repository";
 import type { Signin } from "../auth/dto/sign-in.dto";
 import type { SessionResponse } from "../auth/dto/session-response.dto";
 import { AuthService } from "../auth/auth.service";
-import {
-  ConflictException,
-  InternalServerException,
-} from "@/core/response/error/exception";
+import { InternalServerException } from "@/core/response/error/exception";
 import { authUtil } from "../auth/auth.util";
 import type { Auth } from "../auth/model/auth.model";
 
@@ -45,22 +42,8 @@ export class AdminService {
 
   //Auth
   public async signUp(payload: Signup) {
-    const existingAdmin = await this.authService.findByEmail(payload.email);
-    if (existingAdmin)
-      throw new ConflictException({
-        message: "Admin Already Registered",
-      });
-
     return db.transaction(async (tx) => {
-      const hashedPassword = await authUtil.hashPassword(payload.password);
-
-      const auth = await this.authService.create(
-        {
-          email: payload.email,
-          password: hashedPassword,
-        },
-        tx
-      );
+      const auth = await this.authService.create(payload, tx);
 
       const adminRole = await this.roleRepository.getAdminRole();
       if (!adminRole)

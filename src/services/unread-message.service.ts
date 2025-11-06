@@ -5,12 +5,12 @@ import type { Prisma } from "@prisma/client";
 import type { Request } from "express";
 import { UserService } from "../modules/users/user.service";
 import { AdminService } from "../modules/admin/admin.service";
-import { getAdminCookie, getUserCookie } from "@/utils/cookie";
 import { env } from "@/libs";
 import {
   InternalServerException,
   UnauthorizedException,
 } from "@/core/response/error/exception";
+import { cookie, COOKIE_ENTITY } from "@/libs/cookie";
 
 export class UnreadMessageService {
   private unreadMessageRepository: UnreadMessageRepository;
@@ -34,8 +34,8 @@ export class UnreadMessageService {
   public async findByAuth(req: Request) {
     const isAdminRoute = req.originalUrl.startsWith(`${env.API_PREFIX}/admin`);
     const sessionToken = isAdminRoute
-      ? getAdminCookie(req)
-      : getUserCookie(req);
+      ? cookie.get(req, COOKIE_ENTITY.ADMIN)
+      : cookie.get(req, COOKIE_ENTITY.USER);
     const auth = isAdminRoute
       ? await this.adminService.getMe(sessionToken)
       : await this.userService.getMe(sessionToken);

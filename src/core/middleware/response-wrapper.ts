@@ -2,17 +2,6 @@
 import type { NextFunction, Request, Response } from "express";
 
 // Extend Express Response type to include custom methods
-declare module "express-serve-static-core" {
-  interface Response {
-    success<T = any>(
-      data?: T | null,
-      message?: string,
-      statusCode?: number
-    ): Response;
-    simpleSuccess(message?: string, statusCode?: number): Response;
-    error(message?: string, statusCode?: number, data?: any): Response;
-  }
-}
 
 export const responseWrapper = (
   _req: Request,

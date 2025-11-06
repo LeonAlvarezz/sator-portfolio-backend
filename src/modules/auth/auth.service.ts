@@ -29,6 +29,7 @@ export class AuthService {
     payload: CreateAuth,
     tx?: DrizzleTransaction
   ): Promise<Auth> {
+    console.log("payload.password:", payload.password);
     const passwordHash = await authUtil.hashPassword(payload.password);
     return this.authRepository.create(
       {
@@ -40,15 +41,18 @@ export class AuthService {
   }
 
   public async signin(payload: Signin): Promise<SessionResponse> {
+    console.log("payload:", payload);
     const auth = await this.findByEmail(payload.email);
+    console.log("auth:", auth);
     if (!auth) {
-      throw new UnauthorizedException();
+      throw new NotFoundException({ message: "Admin not found" });
     }
 
     const isPasswordValid = await authUtil.verifyPassword(
       payload.password,
       auth.password
     );
+    console.log("data", payload.password, auth.password);
 
     if (!isPasswordValid) {
       throw new UnauthorizedException();
@@ -72,7 +76,6 @@ export class AuthService {
     // } catch (error) {
     //   logger.error(error);
     // }
-    if (!auth.user) throw new NotFoundException({ message: "User not found" });
 
     const session = await this.sessionService.createSession({
       token: sessionToken,

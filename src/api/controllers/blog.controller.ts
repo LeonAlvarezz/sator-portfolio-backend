@@ -7,11 +7,10 @@ import {
   type Identity,
 } from "@/core/types/base.type";
 import { BlogFilterSchema, CreateBlogSchema } from "@/types/blog.type";
-import { getAdminCookie, getSiteUserCookie } from "@/utils/cookie";
+import { cookie, COOKIE_ENTITY } from "@/libs/cookie";
 import type { NextFunction, Request, Response } from "express";
 import { env } from "@/libs";
 import { AdminService } from "@/modules/admin/admin.service";
-import { SimpleSuccess } from "@/core/response/response";
 import { UnauthorizedException } from "@/core/response/error/exception";
 
 export class BlogController {
@@ -124,7 +123,7 @@ export class BlogController {
     next: NextFunction
   ) => {
     try {
-      const sessionToken = getSiteUserCookie(req);
+      const sessionToken = cookie.get(req, COOKIE_ENTITY.SITE_USER);
       if (!sessionToken) throw new UnauthorizedException();
       const siteUser = await this.siteUserService.getMe(sessionToken);
       if (!siteUser) throw new UnauthorizedException();
@@ -146,14 +145,14 @@ export class BlogController {
       const isAdmin = req.originalUrl.startsWith(`${env.API_PREFIX}/admin`);
       let identity: Identity;
       if (isAdmin) {
-        const token = getAdminCookie(req);
+        const token = cookie.get(req, COOKIE_ENTITY.ADMIN);
         const admin = await this.adminService.getMe(token);
         identity = {
           id: admin.id as string,
           role: IdentityRole.ADMIN,
         };
       } else {
-        const token = getSiteUserCookie(req);
+        const token = cookie.get(req, COOKIE_ENTITY.SITE_USER);
         const siteUser = await this.siteUserService.getMe(token);
         identity = {
           id: siteUser.id as string,
@@ -172,14 +171,14 @@ export class BlogController {
       const isAdmin = req.originalUrl.startsWith(`${env.API_PREFIX}/admin`);
       let identity: Identity;
       if (isAdmin) {
-        const token = getAdminCookie(req);
+        const token = cookie.get(req, COOKIE_ENTITY.ADMIN)(req);
         const admin = await this.adminService.getMe(token);
         identity = {
           id: admin.id as string,
           role: IdentityRole.ADMIN,
         };
       } else {
-        const token = getSiteUserCookie(req);
+        const token = cookie.get(req, COOKIE_ENTITY.SITE_USER);
         const siteUser = await this.siteUserService.getMe(token);
         identity = {
           id: siteUser.id as string,
@@ -242,7 +241,7 @@ export class BlogController {
         slug: req.params.slug,
       });
       await this.blogService.increaseView(key, validatedSlug.slug);
-      SimpleSuccess(res);
+      res.simpleSuccess();
     } catch (error) {
       next(error);
     }

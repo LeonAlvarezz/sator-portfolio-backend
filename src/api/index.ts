@@ -66,7 +66,7 @@ export default () => {
   // siteUserCategory(siteUserRouter);
   // siteUserStatistic(siteUserRouter);
   // siteUserBlog(siteUserRouter);
-  app.use("/site-user", siteUserRouter);
+  app.use("/site-users", siteUserRouter);
 
   // Admin routes group
   const adminRouter = Router();
@@ -83,7 +83,7 @@ export default () => {
   // adminRouteChatMember(adminRouter);
   // adminUnreadMessage(adminRouter);
   adminSiteUser(adminRouter);
-  app.use("/admin", adminRouter);
+  app.use("/admins", adminRouter);
 
   return app;
 };

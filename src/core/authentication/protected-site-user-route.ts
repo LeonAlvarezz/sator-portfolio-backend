@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
-import { getSiteUserCookie } from "@/utils/cookie";
 import { SiteUserService } from "@/modules/site-user/site-user.service";
 import { UnauthorizedException } from "../response/error/exception";
+import { cookie, COOKIE_ENTITY } from "@/libs/cookie";
 
 type ProtectedRouteHandler = (
   req: Request,
@@ -18,7 +18,7 @@ function protectedSiteUserRoute(handler: ProtectedRouteHandler) {
     next: NextFunction
   ): Promise<void> => {
     try {
-      const sessionToken = getSiteUserCookie(req);
+      const sessionToken = cookie.get(req, COOKIE_ENTITY.SITE_USER);
       if (!sessionToken) throw new UnauthorizedException();
       const siteUser = await siteUserService.getMe(sessionToken);
       if (!siteUser) throw new UnauthorizedException();

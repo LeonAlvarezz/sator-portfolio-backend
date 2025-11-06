@@ -1,7 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import { RoleRepository } from "@/modules/role/role.repository";
 import { ResourceRepository } from "@/repositories/resource.repository";
-import { getAdminCookie, getUserCookie } from "@/utils/cookie";
 import { AdminService } from "@/modules/admin/admin.service";
 import { UserService } from "@/modules/users/user.service";
 import { env } from "@/libs";
@@ -9,6 +8,7 @@ import {
   ForbiddenException,
   UnauthorizedException,
 } from "../response/error/exception";
+import { cookie, COOKIE_ENTITY } from "@/libs/cookie";
 
 type ProtectedRouteHandler = (
   req: Request,
@@ -38,8 +38,8 @@ function protectedRoute(
         `${env.API_PREFIX}/admin`
       );
       const sessionToken = isAdminRoute
-        ? getAdminCookie(req)
-        : getUserCookie(req);
+        ? cookie.get(req, COOKIE_ENTITY.ADMIN)
+        : cookie.get(req, COOKIE_ENTITY.USER);
 
       if (!sessionToken) {
         throw new UnauthorizedException(); // Handle unauthorized access

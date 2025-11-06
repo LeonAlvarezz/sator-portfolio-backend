@@ -1,31 +1,28 @@
-import winston from "winston";
+import pino from "pino";
+import { env } from "./env";
 
-const transports = [];
-if (process.env.NODE_ENV !== "development") {
-  transports.push(new winston.transports.Console());
-} else {
-  transports.push(
-    new winston.transports.Console({
-      format: winston.format.combine(
-        winston.format.cli(),
-        winston.format.splat()
-      ),
-    })
-  );
-}
-
-const Logger = winston.createLogger({
-  level: "silly",
-  levels: winston.config.npm.levels,
-  format: winston.format.combine(
-    winston.format.timestamp({
-      format: "YYYY-MM-DD HH:mm:ss",
-    }),
-    winston.format.errors({ stack: true }),
-    winston.format.splat(),
-    winston.format.json()
-  ),
-  transports,
+const Logger = pino({
+  level: env.LOG_LEVEL,
+  transport:
+    env.NODE_ENV === "development"
+      ? {
+          target: "pino-pretty",
+          options: {
+            colorize: true,
+            translateTime: "HH:MM:ss.l",
+            ignore: "pid,hostname",
+          },
+        }
+      : undefined,
+  timestamp: pino.stdTimeFunctions.isoTime,
+  formatters: {
+    level: (label) => {
+      return { level: label };
+    },
+  },
+  serializers: {
+    error: pino.stdSerializers.err,
+  },
 });
 
 export default Logger;

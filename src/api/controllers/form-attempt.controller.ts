@@ -4,7 +4,7 @@ import {
   CreateFormAttemptSchema,
   FormAttemptFilterSchema,
 } from "@/types/portfolio-form.type";
-import { getUserCookie } from "@/utils/cookie";
+import { cookie, COOKIE_ENTITY } from "@/libs/cookie";
 import type { Request, Response, NextFunction } from "express";
 import { ForbiddenException } from "@/core/response/error/exception";
 
@@ -20,7 +20,7 @@ export class FormAttemptController {
     next: NextFunction
   ) => {
     try {
-      const token = getUserCookie(req);
+      const token = cookie.get(req, COOKIE_ENTITY.USER);
       if (!token) throw new ForbiddenException();
       const data = await this.formAttemptService.findByUser(token);
       res.json({ data });
@@ -34,7 +34,7 @@ export class FormAttemptController {
     next: NextFunction
   ) => {
     try {
-      const token = getUserCookie(req);
+      const token = cookie.get(req, COOKIE_ENTITY.USER);
       if (!token) throw new ForbiddenException();
       const filter = FormAttemptFilterSchema.parse(req.query);
       const data = await this.formAttemptService.paginateByUser(token, filter);
@@ -50,7 +50,7 @@ export class FormAttemptController {
   ) => {
     try {
       const validated = BaseModelSchema.parse(req.params);
-      const token = getUserCookie(req);
+      const token = cookie.get(req, COOKIE_ENTITY.USER);
       if (!token) throw new ForbiddenException();
       const data = await this.formAttemptService.getAttemptById(
         token,
@@ -64,7 +64,7 @@ export class FormAttemptController {
   public create = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const validated = CreateFormAttemptSchema.parse(req.body);
-      const token = getUserCookie(req);
+      const token = cookie.get(req, COOKIE_ENTITY.USER);
       if (!token) throw new ForbiddenException();
       const data = await this.formAttemptService.create(token, validated);
       res.json({ data });

@@ -1,10 +1,10 @@
 import { SiteUserService } from "@/modules/site-user/site-user.service";
 import { UpdateTotpSchema } from "@/types/auth.type";
-import { deleteCookie, getSiteUserCookie, setCookie } from "@/utils/cookie";
+import { cookie, COOKIE_ENTITY } from "@/libs/cookie";
 import type { NextFunction, Request, Response } from "express";
 import { SiteUserFilterSchema } from "./dto/site-user-filter.dto";
 import { CreateSiteUserSchema } from "./dto/create-site-user.dto";
-import { BaseModelSchema, COOKIE } from "@/core/types/base.type";
+import { BaseModelSchema } from "@/core/types/base.type";
 import { SiteUserSigninSchema } from "./dto/site-user-signin.dto";
 import {
   ForbiddenException,
@@ -33,7 +33,7 @@ export class SiteUserController {
 
   public getMe = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const sessionToken = getSiteUserCookie(req);
+      const sessionToken = cookie.get(req, COOKIE_ENTITY.SITE_USER);
       const auth = await this._siteUserService.getMe(sessionToken);
       res.success(auth);
     } catch (error) {
@@ -67,7 +67,7 @@ export class SiteUserController {
         params.id as string,
         validated
       );
-      setCookie(res, COOKIE.SITE_USER, siteUser.token);
+      cookie.set(res, COOKIE_ENTITY.SITE_USER, siteUser.token);
       res.success(siteUser);
     } catch (error) {
       next(error);
@@ -80,9 +80,9 @@ export class SiteUserController {
     next: NextFunction
   ) => {
     try {
-      const token = getSiteUserCookie(req);
+      const token = cookie.get(req, COOKIE_ENTITY.SITE_USER);
       await this._siteUserService.signout(token);
-      deleteCookie(res, COOKIE.SITE_USER);
+      cookie.delete(res, COOKIE_ENTITY.SITE_USER);
       res.simpleSuccess();
     } catch (error) {
       next(error);
@@ -137,7 +137,7 @@ export class SiteUserController {
     try {
       const params = BaseModelSchema.parse(req.params);
       const payload = OnboardingSchema.parse(req.body);
-      const token = getSiteUserCookie(req);
+      const token = cookie.get(req, COOKIE_ENTITY.SITE_USER);
       const siteUser = await this._siteUserService.updateAuth(
         params.id as string,
         token,
@@ -171,7 +171,7 @@ export class SiteUserController {
   ) => {
     try {
       const validated = UpdateTotpSchema.parse(req.body);
-      const token = getSiteUserCookie(req);
+      const token = cookie.get(req, COOKIE_ENTITY.SITE_USER);
       if (!token)
         throw new UnauthorizedException({ message: "No Token Found" });
       const admin = await this._siteUserService.updateSiteUserTotp(

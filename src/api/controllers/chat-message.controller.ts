@@ -4,9 +4,9 @@ import {
   CreateChatMessageSchema,
 } from "@/types/chat-message.type";
 import { RoomIdSchema } from "@/types/chat-room.type";
-import { getAdminCookie, getUserCookie } from "@/utils/cookie";
 import type { Request, Response, NextFunction } from "express";
 import { env } from "@/libs";
+import { cookie, COOKIE_ENTITY } from "@/libs/cookie";
 
 export class ChatMessageController {
   private chatMessageService: ChatMessageService;
@@ -34,20 +34,16 @@ export class ChatMessageController {
       const isAdminRoute = req.originalUrl.startsWith(
         `${env.API_PREFIX}/admin`
       );
-      const token = isAdminRoute ? getAdminCookie(req) : getUserCookie(req);
-      const { messages, page, page_count, page_size, current_page } =
-        await this.chatMessageService.paginateByRoomId(
-          token,
-          params.roomId as string,
-          filter,
-          isAdminRoute
-        );
-      res.json({
-        data: {
-          data: messages,
-          metadata: { page, page_size, page_count, current_page },
-        },
-      });
+      const token = isAdminRoute
+        ? cookie.get(req, COOKIE_ENTITY.ADMIN)
+        : cookie.get(req, COOKIE_ENTITY.USER);
+      const data = await this.chatMessageService.paginateByRoomId(
+        token,
+        params.roomId as string,
+        filter,
+        isAdminRoute
+      );
+      res.json({ data });
     } catch (error) {
       next(error);
     }
@@ -59,7 +55,7 @@ export class ChatMessageController {
   ) => {
     try {
       const params = RoomIdSchema.parse(req.params);
-      const token = getAdminCookie(req);
+      const token = cookie.get(req, COOKIE_ENTITY.ADMIN)(req);
       const messages = await this.chatMessageService.findByRoomId(
         token,
         params.roomId as string

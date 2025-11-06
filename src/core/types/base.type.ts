@@ -11,12 +11,6 @@ export enum IdentityRole {
   SITE_USER = "site_user ",
 }
 
-export enum COOKIE {
-  ADMIN = "admin_token",
-  USER = "user_token",
-  SITE_USER = "site_user_token",
-}
-
 export const BaseModelSchema = z.object({
   id: z.union([
     z.string().trim().min(1, { message: "ID Not Found" }),

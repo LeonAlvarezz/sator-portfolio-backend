@@ -1,10 +1,10 @@
 import { AdminService } from "@/modules/admin/admin.service";
 import { AssignAdminRoleSchema } from "@/types/admin.type";
-import { getAdminCookie } from "@/utils/cookie";
 import type { Request, Response, NextFunction } from "express";
 import { SigninSchema } from "../auth/dto/sign-in.dto";
 import { UpdateTotpSchema } from "../auth/dto/update-totp.dto";
 import { SignUpSchema } from "../auth/dto/sign-up.dto";
+import { cookie, COOKIE_ENTITY } from "@/libs/cookie";
 
 export class AdminController {
   private adminService: AdminService;
@@ -40,6 +40,7 @@ export class AdminController {
     try {
       const validated = SigninSchema.parse(req.body);
       const admin = await this.adminService.signin(validated);
+      cookie.set(res, COOKIE_ENTITY.ADMIN, admin.token);
       res.success(admin);
     } catch (error) {
       next(error);
@@ -48,7 +49,7 @@ export class AdminController {
 
   public signout = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const token = getAdminCookie(req);
+      const token = cookie.get(req, COOKIE_ENTITY.ADMIN);
       await this.adminService.signout(token);
       res.json({
         data: "Successfully Sign Out",
@@ -60,7 +61,7 @@ export class AdminController {
 
   public getMe = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const sessionToken = getAdminCookie(req);
+      const sessionToken = cookie.get(req, COOKIE_ENTITY.ADMIN);
       const auth = await this.adminService.getMe(sessionToken);
       res.json({ data: auth });
     } catch (error) {
@@ -75,7 +76,7 @@ export class AdminController {
   ) => {
     try {
       const validated = UpdateTotpSchema.parse(req.body);
-      const token = getAdminCookie(req);
+      const token = cookie.get(req, COOKIE_ENTITY.ADMIN);
       const admin = await this.adminService.updateTotp(token, validated);
       res.json({ data: admin });
     } catch (error) {

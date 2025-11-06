@@ -8,7 +8,7 @@ const router = Router();
 const userController = new UserController();
 
 export default (app: Router) => {
-  app.use("/user", router);
+  app.use("/users", router);
   router.get(
     "/all",
     protectedRoute(userController.getUsers, {
