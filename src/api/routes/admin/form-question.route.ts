@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { FormQuestionController } from "../../controllers/form-question.controller";
-import protectedRoute from "@/authentication/protected-route";
+import protectedRoute from "@/core/authentication/protected-route";
 
 const router = Router();
 const formQuestionController = new FormQuestionController();

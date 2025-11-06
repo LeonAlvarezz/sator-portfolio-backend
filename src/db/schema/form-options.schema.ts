@@ -1,23 +1,23 @@
 import { json, pgTable, text, uuid } from "drizzle-orm/pg-core";
 import { numRange, timestamps } from "../common";
 import { formQuestions, formQuestionTypeEnum, formResponses } from ".";
-import { FormQuestionTypeEnum } from "@/modules/form-question/entity/form-question.enum";
+import { FormQuestionTypeEnum } from "@/modules/form-question/model/form-question.enum";
 import { relations } from "drizzle-orm";
 
-export const formOptions = pgTable('form_options', {
-    id: uuid().defaultRandom().notNull().primaryKey(),
-    option_text: text().notNull(),
-    type: formQuestionTypeEnum().default(FormQuestionTypeEnum.SINGLE_CHOICE),
-    price: numRange(),
-    metadata: json(),
-    question_id: uuid().references(() => formQuestions.id),
-    ...timestamps,
-})
+export const formOptions = pgTable("form_options", {
+  id: uuid().defaultRandom().notNull().primaryKey(),
+  option_text: text().notNull(),
+  type: formQuestionTypeEnum().default(FormQuestionTypeEnum.SINGLE_CHOICE),
+  price: numRange(),
+  metadata: json(),
+  question_id: uuid().references(() => formQuestions.id),
+  ...timestamps,
+});
 
 export const formOptionRelations = relations(formOptions, ({ one, many }) => ({
-    form_question: one(formQuestions, {
-        fields: [formOptions.question_id],
-        references: [formQuestions.id]
-    }),
-    form_responses: many(formResponses)
-}))
+  form_question: one(formQuestions, {
+    fields: [formOptions.question_id],
+    references: [formQuestions.id],
+  }),
+  form_responses: many(formResponses),
+}));

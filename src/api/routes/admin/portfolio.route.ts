@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { PortfolioController } from "../../controllers/portfolio.controller";
-import protectedRoute from "@/authentication/protected-route";
+import protectedRoute from "@/core/authentication/protected-route";
 
 const router = Router();
 const portfolioController = new PortfolioController();

@@ -1,5 +1,5 @@
-import { redisClient } from "@/loaders/redis";
-import type { Auth } from "@/modules/auth/entity/auth.entity";
+import { redisClient } from "@/core/loaders/redis";
+import type { Auth } from "@/modules/auth/model/auth.model";
 import type { RedisClientType } from "redis";
 
 export class CacheService {

@@ -1,5 +1,5 @@
 import { LIMIT } from "@/constant/base";
-import prisma from "@/loaders/prisma";
+import prisma from "@/core/loaders/prisma";
 import type {
   ChangeChatRoomName,
   ChatRoomFilter,

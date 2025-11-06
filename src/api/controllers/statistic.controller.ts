@@ -1,7 +1,7 @@
 import { SiteUserService } from "@/services/site-user.service";
 import { StatisticService } from "@/services/statistic.service";
 import { getSiteUserCookie } from "@/utils/cookie";
-import { ThrowUnauthorized } from "@/utils/exception";
+import { ThrowUnauthorized } from "@/core/response/error/errors";
 import type { NextFunction, Response, Request } from "express";
 
 export class StatisticController {

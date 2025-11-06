@@ -5,10 +5,13 @@ import type {
   CreateChatMember,
   InviteChatMember,
 } from "@/types/chat-member.type";
-import { ThrowInternalServer, ThrowUnauthorized } from "@/utils/exception";
+import {
+  ThrowInternalServer,
+  ThrowUnauthorized,
+} from "@/core/response/error/errors";
 import { ChatMemberRole, ChatMessageType, Prisma } from "@prisma/client";
 import { ChatMessageService } from "./chat-message.service";
-import prisma from "@/loaders/prisma";
+import prisma from "@/core/loaders/prisma";
 import { UnreadMessageService } from "./unread-message.service";
 import { AdminService } from "../modules/admin/admin.service";
 

@@ -1,4 +1,4 @@
-import prisma from "@/loaders/prisma";
+import prisma from "@/core/loaders/prisma";
 import type { Prisma, SiteUserSession } from "@prisma/client";
 
 export class SiteUserSessionRepository {

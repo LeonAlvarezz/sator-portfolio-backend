@@ -1,4 +1,4 @@
-import { ThrowUnauthorized } from "@/utils/exception";
+import { ThrowUnauthorized } from "@/core/response/error/errors";
 import type { Request, Response, NextFunction } from "express";
 import { getSiteUserCookie } from "@/utils/cookie";
 import { SiteUserService } from "@/services/site-user.service";

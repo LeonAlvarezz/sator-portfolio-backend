@@ -1,13 +1,16 @@
 import { ChatRoomRepository } from "@/repositories/chat-room.repository";
 import { UnreadMessageRepository } from "@/repositories/unread-message.repository";
 import type { CreateUnreadMessage } from "@/types/unread-message.type";
-import { ThrowInternalServer, ThrowUnauthorized } from "@/utils/exception";
+import {
+  ThrowInternalServer,
+  ThrowUnauthorized,
+} from "@/core/response/error/errors";
 import type { Prisma } from "@prisma/client";
 import type { Request } from "express";
 import { UserService } from "./user.service";
 import { AdminService } from "../modules/admin/admin.service";
 import { getAdminCookie, getUserCookie } from "@/utils/cookie";
-import { env } from "@/config";
+import { env } from "@/libs";
 
 export class UnreadMessageService {
   private unreadMessageRepository: UnreadMessageRepository;
@@ -29,9 +32,7 @@ export class UnreadMessageService {
   }
 
   public async findByAuth(req: Request) {
-    const isAdminRoute = req.originalUrl.startsWith(
-      `${env.API_PREFIX}/admin`
-    );
+    const isAdminRoute = req.originalUrl.startsWith(`${env.API_PREFIX}/admin`);
     const sessionToken = isAdminRoute
       ? getAdminCookie(req)
       : getUserCookie(req);

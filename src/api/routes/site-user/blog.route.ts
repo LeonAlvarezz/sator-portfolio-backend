@@ -1,5 +1,5 @@
 import { BlogController } from "@/api/controllers/blog.controller";
-import protectedSiteUserRoute from "@/authentication/protected-site-user-route";
+import protectedSiteUserRoute from "@/core/authentication/protected-site-user-route";
 import { Router } from "express";
 
 const router = Router();

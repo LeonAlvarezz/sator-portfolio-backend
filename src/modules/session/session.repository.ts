@@ -1,7 +1,7 @@
 import { db, type DrizzleTransaction } from "@/db";
 import { sessions } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import type { SessionEntity } from "./entity/session.entity";
+import type { SessionEntity } from "./model/session.model";
 
 export class SessionRepository {
   public async findSessionById(id: string) {
@@ -13,8 +13,8 @@ export class SessionRepository {
             user: true,
             site_user: true,
             admin: true,
-          }
-        }
+          },
+        },
       },
     });
   }
@@ -24,14 +24,17 @@ export class SessionRepository {
   }
 
   public async updateSessionExpiredAt(sessionId: string, expiredAt: Date) {
-    return await db.update(sessions).set({
-      expires_at: expiredAt,
-    }).where(eq(sessions.id, sessionId));
+    return await db
+      .update(sessions)
+      .set({
+        expires_at: expiredAt,
+      })
+      .where(eq(sessions.id, sessionId));
   }
 
   public async createSession(payload: SessionEntity) {
     const [result] = await db.insert(sessions).values(payload).returning();
-    return result
+    return result;
   }
 
   public async updateTwoFactorVerified(
@@ -39,8 +42,11 @@ export class SessionRepository {
     tx?: DrizzleTransaction
   ) {
     const client = tx ?? db;
-    return await client.update(sessions).set({
-      two_factor_verified: true,
-    }).where(eq(sessions.id, sessionId));
+    return await client
+      .update(sessions)
+      .set({
+        two_factor_verified: true,
+      })
+      .where(eq(sessions.id, sessionId));
   }
 }

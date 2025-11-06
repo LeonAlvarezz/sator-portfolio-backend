@@ -1,5 +1,5 @@
 import { UnreadMessageController } from "@/api/controllers/unread-message.controller";
-import protectedRoute from "@/authentication/protected-route";
+import protectedRoute from "@/core/authentication/protected-route";
 import { Router } from "express";
 
 const router = Router();

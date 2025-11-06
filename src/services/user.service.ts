@@ -1,38 +1,23 @@
 import { UserRepository } from "@/repositories/user.repository";
 import { type UserFilter } from "@/types/user.type";
-import { env } from "@/config";
 import { getPaginationMetadata } from "@/utils/pagination";
-import type { Login, Signup } from "@/types/auth.type";
-import { ThrowInternalServer, ThrowUnauthorized } from "@/utils/exception";
-import { verifyTOTP } from "@oslojs/otp";
-import { decrypt } from "@/utils/encryption";
 import { CacheService } from "./cache.service";
-import {
-  decodeToSessionId,
-  generateSessionToken,
-  hashPassword,
-  verifyPassword,
-} from "@/utils/auth_util";
-import { AuthRepository } from "@/modules/auth/auth.repository";
-import { SessionService } from "../modules/session/session.service";
-import { SessionRepository } from "@/modules/session/session.repository";
-import { IdentityRole } from "@/types/base.type";
 import { db } from "@/db";
-import { logger } from "@/libs";
+import { AuthService } from "@/modules/auth/auth.service";
+import type { Signin } from "@/modules/auth/dto/sign-in.dto";
+import type { Signup } from "@/modules/auth/dto/sign-up.dto";
+import type { SessionResponse } from "@/modules/auth/dto/session-response.dto";
+import type { Auth } from "@/modules/auth/model/auth.model";
 
 export class UserService {
   private _userRepository: UserRepository;
-  private _authRepository: AuthRepository;
-  private _sessionRepository: SessionRepository;
-  private _sessionService: SessionService;
   private _cacheService: CacheService;
+  private readonly authService: AuthService;
 
   constructor() {
     this._userRepository = new UserRepository();
-    this._authRepository = new AuthRepository();
-    this._sessionRepository = new SessionRepository();
-    this._sessionService = new SessionService();
     this._cacheService = new CacheService();
+    this.authService = new AuthService();
   }
 
   public async getUsers() {
@@ -49,87 +34,31 @@ export class UserService {
     return { data: users, metadata: { count, current_page, page_size, page } };
   }
 
-  public async signup(payload: Signup) {
-    const passwordHash = await hashPassword(payload.password);
-    return db.transaction(async (tx) => {
-      const auth = await this._authRepository.createAuth(
-        {
-          email: payload.email,
-          password: passwordHash,
-        },
-        tx
-      );
-      return this._userRepository.addUser(
+  public async signup(payload: Signup): Promise<void> {
+    await db.transaction(async (tx) => {
+      const auth = await this.authService.create(payload, tx);
+      // const auth = await this._authRepository.createAuth(
+      //   {
+      //     email: payload.email,
+      //     password: passwordHash,
+      //   },
+      //   tx
+      // );
+      await this._userRepository.addUser(
         {
           username: payload.username,
         },
-        auth.id,
+        auth.id as string,
         tx
       );
     });
   }
 
-  public async login(payload: Login) {
-    const auth = await this._authRepository.checkByEmail(payload.email);
-    if (!auth) {
-      return ThrowUnauthorized("Invalid Credentials");
-    }
-
-    const isPasswordValid = await verifyPassword(
-      payload.password,
-      auth.password
-    );
-    if (!isPasswordValid) {
-      return ThrowUnauthorized("Invalid Credentials");
-    }
-
-    if (auth.totp_key) {
-      const key = decrypt(Uint8Array.from(auth.totp_key));
-      if (!verifyTOTP(key, 30, 6, String(payload.otp))) {
-        return ThrowInternalServer("Invalid Code");
-      }
-    } else {
-      if (payload.otp !== Number(env.DEFAULT_OTP_CODE)) {
-        return ThrowUnauthorized("Invalid Code");
-      }
-    }
-
-    const sessionToken = generateSessionToken();
-
-    try {
-      this._cacheService.saveAuth(sessionToken, auth);
-    } catch (error) {
-      logger.error(error);
-    }
-    if (!auth.user) return ThrowUnauthorized("User cannot be found");
-
-    const session = await this._sessionService.createSession(
-      {
-        token: sessionToken,
-        two_factor_verified: !!auth.totp_key,
-      },
-      { id: auth.user.id, role: IdentityRole.USER }
-    );
-
-    return {
-      ...auth.user,
-      token: sessionToken,
-      expires_at: session.expires_at,
-    };
+  public async signin(payload: Signin): Promise<SessionResponse> {
+    return await this.authService.signin(payload);
   }
 
-  public async getMe(token: string) {
-    const sessionId = decodeToSessionId(token);
-    const result = await this._sessionRepository.findSessionById(sessionId);
-    if (result === null) {
-      return ThrowUnauthorized();
-    }
-    const { user, ...session } = result;
-    if (user === null) {
-      return ThrowUnauthorized();
-    }
-    const time = session.expires_at.getTime();
-    await this._sessionService.checkAndExtendSession(sessionId, time);
-    return user;
+  public async getMe(token: string): Promise<Auth> {
+    return await this.authService.getMe(token);
   }
 }

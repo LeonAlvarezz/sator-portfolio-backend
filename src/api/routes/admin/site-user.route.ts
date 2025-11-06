@@ -1,5 +1,5 @@
 import { SiteUserController } from "@/api/controllers/site-user.controller";
-import protectedRoute from "@/authentication/protected-route";
+import protectedRoute from "@/core/authentication/protected-route";
 import { Router } from "express";
 
 const router = Router();

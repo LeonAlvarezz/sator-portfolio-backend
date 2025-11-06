@@ -1,4 +1,4 @@
-import prisma from "@/loaders/prisma";
+import prisma from "@/core/loaders/prisma";
 import { ChatMemberRepository } from "@/repositories/chat-member.repository";
 import { ChatMessageRepository } from "@/repositories/chat-message.repository";
 import { ChatRoomRepository } from "@/repositories/chat-room.repository";
@@ -6,7 +6,10 @@ import type {
   ChatMessageFilter,
   CreateChatMessage,
 } from "@/types/chat-message.type";
-import { ThrowInternalServer, ThrowUnauthorized } from "@/utils/exception";
+import {
+  ThrowInternalServer,
+  ThrowUnauthorized,
+} from "@/core/response/error/errors";
 import { getPaginationMetadata } from "@/utils/pagination";
 import { WSEventType, WSReceiver } from "@/enum/ws-event.enum";
 import { WSService } from "./ws.service";

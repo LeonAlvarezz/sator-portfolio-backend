@@ -6,38 +6,45 @@ import { auths } from "@/db/schema";
 import type { Signup } from "./dto/sign-up.dto";
 
 export class AuthRepository {
-  public async checkByEmail(email: string) {
+  public async findByEmail(email: string) {
     return db.query.auths.findFirst({
       where: eq(auths.email, email),
       with: {
         admin: true,
         user: true,
         site_user: true,
-      }
+      },
     });
   }
 
-  public async createAuth(
+  public async create(
     payload: Omit<Signup, "username">,
-    tx: DrizzleTransaction
+    tx?: DrizzleTransaction
   ) {
     const client = tx ? tx : db;
-    const [result] = await client.insert(auths).values({
-      email: payload.email,
-      password: payload.password,
-    }).returning();
+    const [result] = await client
+      .insert(auths)
+      .values({
+        email: payload.email,
+        password: payload.password,
+      })
+      .returning();
     return result;
   }
 
   public async updatePassword(
     id: string,
     password: string,
-    tx?: DrizzleTransaction,
+    tx?: DrizzleTransaction
   ) {
     const client = tx ? tx : db;
-    const [result] = await client.update(auths).set({
-      password
-    }).where(eq(auths.id, id)).returning();
+    const [result] = await client
+      .update(auths)
+      .set({
+        password,
+      })
+      .where(eq(auths.id, id))
+      .returning();
     return result;
   }
 
@@ -48,9 +55,13 @@ export class AuthRepository {
   ) {
     const encrypted = encryptToBuffer(payload.key);
     const client = tx ? tx : db;
-    const [result] = await client.update(auths).set({
-      totp_key: encrypted,
-    }).where(eq(auths.id, id)).returning()
+    const [result] = await client
+      .update(auths)
+      .set({
+        totp_key: encrypted,
+      })
+      .where(eq(auths.id, id))
+      .returning();
     return result;
   }
 }

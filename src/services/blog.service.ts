@@ -1,5 +1,5 @@
 import { ContentStatus } from "@/enum/content.enum";
-import prisma from "@/loaders/prisma";
+import prisma from "@/core/loaders/prisma";
 import { BlogMetricRepository } from "@/repositories/blog-metric.repository";
 import { BlogRepository } from "@/repositories/blog.repository";
 import { CategoryOnBlogRepository } from "@/repositories/category-on-blog.repository";
@@ -10,7 +10,7 @@ import {
   ThrowForbidden,
   ThrowNotFound,
   ThrowUnauthorized,
-} from "@/utils/exception";
+} from "@/core/response/error/errors";
 import { getPaginationMetadata } from "@/utils/pagination";
 
 export class BlogService {

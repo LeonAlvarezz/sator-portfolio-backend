@@ -4,7 +4,7 @@ import {
   CreateFormQuestionSchema,
   PortfolioFormFilterSchema,
 } from "@/types/portfolio-form.type";
-import { ThrowInternalServer } from "@/utils/exception";
+import { ThrowInternalServer } from "@/core/response/error/errors";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import type { NextFunction, Request, Response } from "express";
 

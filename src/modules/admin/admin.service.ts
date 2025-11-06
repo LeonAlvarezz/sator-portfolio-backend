@@ -2,7 +2,7 @@ import { AdminRepository } from "@/modules/admin/admin.repository";
 import { SessionRepository } from "@/modules/session/session.repository";
 import { decodeBase64 } from "@oslojs/encoding";
 import { verifyTOTP } from "@oslojs/otp";
-import { env } from "@/config";
+import { env } from "@/libs";
 
 import { COOKIE } from "@/types/base.type";
 import type { UpdateTotp } from "@/types/auth.type";
@@ -10,30 +10,33 @@ import { decrypt } from "@/utils/encryption";
 import type { AssignAdminRole } from "@/types/admin.type";
 import type { Login, Signup } from "@/types/auth.type";
 import { AuthRepository } from "@/modules/auth/auth.repository";
-import {
-  decodeToSessionId,
-  generateSessionToken,
-  hashPassword,
-  verifyPassword,
-} from "@/utils/auth_util";
+import { authUtil } from "@/utils/auth_util";
 import { SessionService } from "../session/session.service";
 import { setCookie } from "@/utils/cookie";
 import type { Response } from "express";
 import { db } from "@/db";
 import { RoleRepository } from "@/modules/role/role.repository";
-import { ForbiddenException, InternalServerException, Logger, NotFoundException, UnauthorizedException } from "@/libs";
+import {
+  ForbiddenException,
+  InternalServerException,
+  NotFoundException,
+  UnauthorizedException,
+} from "@/libs";
+import type { Signin } from "../auth/dto/sign-in.dto";
+import type { SessionResponse } from "../auth/dto/session-response.dto";
+import { AuthService } from "../auth/auth.service";
 
 export class AdminService {
   private adminRepository: AdminRepository;
   private sessionRepository: SessionRepository;
-  private authRepository: AuthRepository;
+  private authService: AuthService;
   private roleRepository: RoleRepository;
   private sessionService: SessionService;
 
   constructor() {
     this.adminRepository = new AdminRepository();
     this.sessionRepository = new SessionRepository();
-    this.authRepository = new AuthRepository();
+    this.authService = new AuthService();
     this.roleRepository = new RoleRepository();
     this.sessionService = new SessionService();
   }
@@ -52,12 +55,14 @@ export class AdminService {
 
   //Auth
   public async signUp(payload: Signup) {
-    const existingAdmin = await this.authRepository.checkByEmail(payload.email);
-    if (existingAdmin) throw new InternalServerException({ message: "Admin Already Registered" });
+    const existingAdmin = await this.authService.findByEmail(payload.email);
+    if (existingAdmin)
+      throw new Conflic({
+        message: "Admin Already Registered",
+      });
 
     return db.transaction(async (tx) => {
-      const hashedPassword = await hashPassword(payload.password);
-
+      const hashedPassword = await authUtil.hashPassword(payload.password);
 
       const auth = await this.authRepository.createAuth(
         {
@@ -68,62 +73,30 @@ export class AdminService {
       );
 
       const adminRole = await this.roleRepository.getAdminRole();
-      if (!adminRole) throw new InternalServerException({ message: 'No admin role found' });
+      if (!adminRole)
+        throw new InternalServerException({ message: "No admin role found" });
       const admin = await this.adminRepository.createAdmin(
         {
           username: payload.username,
-          role_id: adminRole.id
+          role_id: adminRole.id,
         },
         auth.id,
-        tx,
+        tx
       );
       return admin;
     });
   }
 
-  public async login(res: Response, payload: Login) {
-    const auth = await this.authRepository.checkByEmail(payload.email);
-    if (!auth || !auth.admin) throw new NotFoundException({ message: "Admin not found" });
-    const isPasswordValid = await verifyPassword(
-      payload.password,
-      auth.password
-    );
-    if (!isPasswordValid) throw new UnauthorizedException({ message: "Invalid User Credentials" })
-
-    if (auth.totp_key) {
-      const key = decrypt(Uint8Array.from(auth.totp_key));
-      if (!verifyTOTP(key, 30, 6, String(payload.otp))) throw new UnauthorizedException({ message: "Invalid Code" });
-    } else {
-      if (payload.otp !== Number(env.DEFAULT_OTP_CODE)) throw new UnauthorizedException({ message: "Invalid Code" });
-    }
-    const sessionToken = generateSessionToken();
-    const session = await this.sessionService.createSession(
-      {
-        token: sessionToken,
-        two_factor_verified: !!auth.totp_key,
-        auth_id: auth.admin.id,
-      },
-    );
-    setCookie(res, COOKIE.ADMIN, sessionToken);
-    return {
-      ...auth.admin,
-      token: sessionToken,
-      expires_at: session.expires_at,
-    };
+  public async signin(payload: Signin): Promise<SessionResponse> {
+    return await this.authService.signin(payload);
   }
 
-  public async getMe(token: string) {
-    const sessionId = decodeToSessionId(token);
-    const result = await this.sessionRepository.findSessionById(sessionId);
-    if (!result) throw new ForbiddenException();
-    if (!result.auth.admin) throw new UnauthorizedException();
-    const time = result.expires_at.getTime();
-    await this.sessionService.checkAndExtendSession(sessionId, time);
-    return result.auth.admin
+  public async getMe(token: string): Promise<Auth> {
+    return await this.authService.getMe(token);
   }
 
   public async signout(token: string) {
-    const id = decodeToSessionId(token);
+    const id = authUtil.decodeToSessionId(token);
     const result = await this.sessionService.invalidateSession(id);
     return result;
   }
@@ -131,7 +104,7 @@ export class AdminService {
   public async UpdateTotp(token: string, payload: UpdateTotp) {
     try {
       let key: Uint8Array;
-      const sessionId = decodeToSessionId(token);
+      const sessionId = authUtil.decodeToSessionId(token);
       const admin = await this.getMe(token);
 
       if (!admin) throw new ForbiddenException();
@@ -139,11 +112,17 @@ export class AdminService {
       try {
         key = decodeBase64(payload.key);
       } catch {
-        throw new InternalServerException({ message: "Invalid Key, Failed To Decode" });
+        throw new InternalServerException({
+          message: "Invalid Key, Failed To Decode",
+        });
       }
 
-      if (key.byteLength !== 20) throw new InternalServerException({ message: "Invalid Key, ByteLength Invalid" });
-      if (!verifyTOTP(key, 30, 6, payload.code)) throw new UnauthorizedException({ message: "Invalid Code" })
+      if (key.byteLength !== 20)
+        throw new InternalServerException({
+          message: "Invalid Key, ByteLength Invalid",
+        });
+      if (!verifyTOTP(key, 30, 6, payload.code))
+        throw new UnauthorizedException({ message: "Invalid Code" });
 
       const result = await db.transaction(async (tx) => {
         await this.sessionRepository.updateTwoFactorVerified(sessionId, tx);
@@ -159,11 +138,9 @@ export class AdminService {
 
       return result;
     } catch (error) {
-      Logger.error(error);
       throw new InternalServerException({
-        error
-      }
-      );
+        error,
+      });
     }
   }
 }

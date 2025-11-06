@@ -1,6 +1,6 @@
 import request from "supertest";
 import { describe, it, expect, afterAll, beforeAll } from "vitest";
-import {env} from "@/config";
+import { env } from "@/libs";
 import { app, closeServer, startServer } from "@/index";
 
 describe("Testing Phase", () => {

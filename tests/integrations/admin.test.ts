@@ -1,6 +1,6 @@
 import { startServer, closeServer, app } from "@/index";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { env } from "@/config";
+import { env } from "@/libs";
 import request from "supertest";
 import type { Login } from "@/types/auth.type";
 

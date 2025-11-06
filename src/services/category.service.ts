@@ -1,11 +1,11 @@
 import { CategoryRepository } from "@/repositories/category.repository";
 import type { CreateCategory } from "@/types/category.type";
-import { ThrowUnauthorized } from "@/utils/exception";
+import { ThrowUnauthorized } from "@/core/response/error/errors";
 import type { Request } from "express";
 import { SiteUserService } from "./site-user.service";
 import { AdminService } from "../modules/admin/admin.service";
 import { getAdminCookie, getSiteUserCookie } from "@/utils/cookie";
-import { env } from "@/config";
+import { env } from "@/libs";
 
 export class CategoryService {
   private categoryRepository: CategoryRepository;

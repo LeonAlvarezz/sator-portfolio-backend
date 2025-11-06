@@ -1,7 +1,7 @@
 import "reflect-metadata"; // We need this in order to use @Decorators
 import express from "express";
-import { env } from "@/config";
-import { loadEnv } from "./utils/env";
+import { env } from "@/libs";
+import { loadEnv } from "./core/utils/loadEnv";
 
 // Export the app and startServer function
 export const app = express();
@@ -13,7 +13,7 @@ export async function startServer() {
 
   try {
     console.log("Applying loaders...");
-    const loaders = await import("./loaders");
+    const loaders = await import("./core/loaders");
     await loaders.default({ expressApp: app });
 
     const port = env.NODE_ENV === "test" ? 0 : env.PORT;

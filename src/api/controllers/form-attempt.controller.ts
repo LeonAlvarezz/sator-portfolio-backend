@@ -5,7 +5,7 @@ import {
   FormAttemptFilterSchema,
 } from "@/types/portfolio-form.type";
 import { getUserCookie } from "@/utils/cookie";
-import { ThrowForbidden } from "@/utils/exception";
+import { ThrowForbidden } from "@/core/response/error/errors";
 import type { Request, Response, NextFunction } from "express";
 
 export class FormAttemptController {

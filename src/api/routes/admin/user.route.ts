@@ -1,5 +1,5 @@
 import { UserController } from "@/api/controllers/user.controller";
-import protectedRoute from "@/authentication/protected-route";
+import protectedRoute from "@/core/authentication/protected-route";
 import { CreateUserSchema } from "@/types/user.type";
 import { validateData } from "@/utils/validator";
 import { Router } from "express";

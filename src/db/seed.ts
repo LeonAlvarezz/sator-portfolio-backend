@@ -7,6 +7,7 @@ type SeedOptions = {
 };
 function parseArgs(): SeedOptions {
   const args = process.argv.slice(2);
+  
   const options: SeedOptions = {};
 
   if (args.includes("--users")) {

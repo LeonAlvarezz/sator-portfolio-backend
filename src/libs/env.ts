@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 import { z } from "zod";
+
 // process.env.NODE_ENV = process.env.NODE_ENV || "development";
 // const envFound = dotenv.config({
 //   path: path.join(__dirname, `../../.env.${process.env.NODE_ENV}`),
@@ -14,14 +15,14 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 enum LogLevelEnum {
-  SILLY = 'silly',
-  INFO = 'info',
+  SILLY = "silly",
+  INFO = "info",
 }
 
 enum NODE_ENV_ENUM {
-  TEST = 'test',
-  DEVELOPMENT = 'development',
-  PRODUCTION = 'production'
+  TEST = "test",
+  DEVELOPMENT = "development",
+  PRODUCTION = "production",
 }
 
 const envSchema = z.object({
@@ -31,13 +32,11 @@ const envSchema = z.object({
   PASSWORD_SALT: z.coerce.number().default(10),
   LOG_LEVEL: z.nativeEnum(LogLevelEnum).default(LogLevelEnum.SILLY),
   API_PREFIX: z.string(),
-  API_KEY_ALGO: z.string().default('H256'),
+  API_KEY_ALGO: z.string().default("H256"),
   API_KEY_SECRET: z.string(),
   ENCRYPTION_KEY: z.string(),
   DEFAULT_PASSWORD: z.string(),
   DEFAULT_OTP_CODE: z.string(),
-})
+});
 
-
-const env = envSchema.parse(process.env);
-export default env;
+export const env = envSchema.parse(process.env);

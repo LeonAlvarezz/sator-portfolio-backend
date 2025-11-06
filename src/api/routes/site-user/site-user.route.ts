@@ -1,5 +1,5 @@
 import { SiteUserController } from "@/api/controllers/site-user.controller";
-import protectedSiteUserRoute from "@/authentication/protected-site-user-route";
+import protectedSiteUserRoute from "@/core/authentication/protected-site-user-route";
 import { OnboardingSchema, SiteUserAuthSchema } from "@/types/site-user.type";
 import { validateData } from "@/utils/validator";
 import { Router } from "express";

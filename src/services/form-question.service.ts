@@ -1,12 +1,12 @@
 import { LIMIT } from "@/constant/base";
-import prisma from "@/loaders/prisma";
+import prisma from "@/core/loaders/prisma";
 import { FormOptionRepository } from "@/repositories/form-option.repository";
 import { FormQuestionRepository } from "@/repositories/form-question.repository";
 import type {
   CreateFormQuestion,
   PortfolioFormFilter,
 } from "@/types/portfolio-form.type";
-import { ThrowNotFound } from "@/utils/exception";
+import { ThrowNotFound } from "@/core/response/error/errors";
 
 export class FormQuestionService {
   private formQuestionRepository: FormQuestionRepository;

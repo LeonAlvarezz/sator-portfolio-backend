@@ -1,55 +1,50 @@
-import prisma from "@/loaders/prisma";
+import { db, type DrizzleTransaction } from "@/db";
+import { permissionFlags } from "@/db/schema";
 import type { CreatePermission } from "@/types/permission.type";
-import type { Prisma } from "@prisma/client";
 
 export class PermissionFlagRepository {
   public async create(
-    role_id: number,
+    role_id: string,
     payload: CreatePermission,
-    tx?: Prisma.TransactionClient
+    tx?: DrizzleTransaction
   ) {
-    const client = tx ? tx.permissionFlag : prisma.permissionFlag;
-    return await client.create({
-      data: {
-        role_id: role_id,
-        resource_id: payload.resource_id,
-        read: payload.read,
-        write: payload.write,
-        delete: payload.delete,
-      },
+    const client = tx ? tx : db;
+    return await client.insert(permissionFlags).values({
+      role_id: role_id,
+      resource_id: payload.resource_id,
+      read: payload.read,
+      write: payload.write,
+      delete: payload.delete,
     });
   }
 
   public async upsert(
-    role_id: number,
+    role_id: string,
     payload: CreatePermission,
-    tx: Prisma.TransactionClient
+    tx: DrizzleTransaction
   ) {
-    const client = tx ? tx.permissionFlag : prisma.permissionFlag;
+    const client = tx ? tx : db;
 
-    return await client.upsert({
-      where: {
-        role_id_resource_id: {
-          role_id,
-          resource_id: payload.resource_id,
-        },
-      },
-      update: {
-        read: payload.read,
-        write: payload.write,
-        delete: payload.delete,
-      },
-      create: {
+    return await client
+      .insert(permissionFlags)
+      .values({
         role_id,
         resource_id: payload.resource_id,
         read: payload.read,
         write: payload.write,
         delete: payload.delete,
-      },
-    });
+      })
+      .onConflictDoUpdate({
+        target: [permissionFlags.role_id, permissionFlags.resource_id],
+        set: {
+          read: payload.read,
+          write: payload.write,
+          delete: payload.delete,
+        },
+      });
   }
 
-  public async findAll() {
-    return await prisma.permissionFlag.findMany();
+  public findAll() {
+    return db.query.permissionFlags.findMany();
   }
 }

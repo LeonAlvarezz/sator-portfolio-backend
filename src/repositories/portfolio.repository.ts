@@ -1,6 +1,6 @@
 import { LIMIT } from "@/constant/base";
 import { ContentStatus } from "@/enum/content.enum";
-import prisma from "@/loaders/prisma";
+import prisma from "@/core/loaders/prisma";
 import { IdentityRole, type Identity } from "@/types/base.type";
 import type { CreatePortfolio, PortfolioFilter } from "@/types/portfolio.type";
 import type { Prisma } from "@prisma/client";

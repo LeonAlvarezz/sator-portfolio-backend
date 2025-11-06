@@ -3,7 +3,7 @@ import { LoginSchema, SignUpSchema } from "@/types/auth.type";
 import { COOKIE } from "@/types/base.type";
 import { UserFilterSchema } from "@/types/user.type";
 import { getUserCookie, setCookie } from "@/utils/cookie";
-import { ThrowUnauthorized } from "@/utils/exception";
+import { ThrowUnauthorized } from "@/core/response/error/errors";
 import type { Request, Response, NextFunction } from "express";
 
 export class UserController {

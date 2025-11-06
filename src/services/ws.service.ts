@@ -1,5 +1,5 @@
 import { WSEventType, WSReceiver } from "@/enum/ws-event.enum";
-import { io } from "@/loaders/socket";
+import { io } from "@/core/loaders/socket";
 import { Server } from "socket.io";
 import { CacheService } from "./cache.service";
 

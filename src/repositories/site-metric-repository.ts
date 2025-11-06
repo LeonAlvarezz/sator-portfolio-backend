@@ -1,5 +1,5 @@
 import type { DailyMetric, TotalMetric } from "@/types/statistic.type";
-import prisma from "@/loaders/prisma";
+import prisma from "@/core/loaders/prisma";
 import type { Prisma } from "@prisma/client";
 
 export class SiteMetricRepository {

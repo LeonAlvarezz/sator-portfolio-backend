@@ -1,4 +1,4 @@
-import protectedRoute from "@/authentication/protected-route";
+import protectedRoute from "@/core/authentication/protected-route";
 import { Router } from "express";
 import { ChatRoomController } from "../controllers/chat-room.controller";
 

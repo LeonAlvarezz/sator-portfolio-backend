@@ -1,4 +1,4 @@
-import prisma from "@/loaders/prisma";
+import prisma from "@/core/loaders/prisma";
 
 export class TestRepository {
   public async getAll() {

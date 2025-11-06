@@ -1,4 +1,4 @@
-import { SimpleSuccess } from "@/response/response";
+import { SimpleSuccess } from "@/core/response/response";
 import { SiteUserService } from "@/services/site-user.service";
 import { UpdateTotpSchema } from "@/types/auth.type";
 import { BaseModelSchema, COOKIE } from "@/types/base.type";
@@ -13,7 +13,7 @@ import {
   ThrowForbidden,
   ThrowInternalServer,
   ThrowUnauthorized,
-} from "@/utils/exception";
+} from "@/core/response/error/errors";
 import type { NextFunction, Request, Response } from "express";
 
 export class SiteUserController {

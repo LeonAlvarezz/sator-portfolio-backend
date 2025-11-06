@@ -1,11 +1,13 @@
-import prisma from "@/loaders/prisma";
-import Logger from "@/logger/logger";
 import { PermissionFlagRepository } from "@/repositories/permission-flag.repository";
 import { ResourceRepository } from "@/repositories/resource.repository";
 import { RoleRepository } from "@/modules/role/role.repository";
 import type { BaseModel } from "@/types/base.type";
 import type { CheckRole, CreateRole, UpdateRole } from "@/types/role.type";
-import { ThrowForbidden, ThrowInternalServer } from "@/utils/exception";
+import {
+  ThrowForbidden,
+  ThrowInternalServer,
+} from "@/core/response/error/errors";
+import { db } from "@/db";
 
 export class RoleService {
   private roleRepository: RoleRepository;
@@ -22,47 +24,37 @@ export class RoleService {
   }
 
   public async findById(payload: BaseModel) {
-    return await this.roleRepository.findById(Number(payload.id));
+    return await this.roleRepository.findById(payload.id as string);
   }
 
   public async create(payload: CreateRole) {
-    try {
-      return await prisma.$transaction(async (tx) => {
-        const role = await this.roleRepository.create(payload, tx);
+    return await db.transaction(async (tx) => {
+      const role = await this.roleRepository.create(payload, tx);
 
-        const permissionPromises = payload.permissions.map((permission) =>
-          this.permissionFlagRepository.create(role.id, permission, tx)
-        );
-        await Promise.all(permissionPromises);
+      const permissionPromises = payload.permissions.map((permission) =>
+        this.permissionFlagRepository.create(role.id, permission, tx)
+      );
+      await Promise.all(permissionPromises);
 
-        return role;
-      });
-    } catch (error) {
-      Logger.error(error);
-      return ThrowInternalServer();
-    }
+      return role;
+    });
   }
-  public async update(role_id: number, payload: UpdateRole) {
-    try {
-      return await prisma.$transaction(async (tx) => {
-        const role = await this.roleRepository.findById(role_id, tx);
-        if (!role) {
-          return ThrowForbidden("Role is Not Found");
-        }
-        const permissionPromises = payload.permissions.map((permission) =>
-          this.permissionFlagRepository.upsert(role.id, permission, tx)
-        );
-        await Promise.all(permissionPromises);
+  public async update(role_id: string, payload: UpdateRole) {
+    return await db.transaction(async (tx) => {
+      const role = await this.roleRepository.findById(role_id, tx);
+      if (!role) {
+        return ThrowForbidden("Role is Not Found");
+      }
+      const permissionPromises = payload.permissions.map((permission) =>
+        this.permissionFlagRepository.upsert(role.id, permission, tx)
+      );
+      await Promise.all(permissionPromises);
 
-        return role;
-      });
-    } catch (error) {
-      Logger.error(error);
-      return ThrowInternalServer();
-    }
+      return role;
+    });
   }
   public async delete(payload: BaseModel) {
-    return this.roleRepository.delete(Number(payload.id));
+    return this.roleRepository.delete(payload.id as string);
   }
   public async check(payload: CheckRole) {
     const role = await this.roleRepository.findById(payload.role_id);
@@ -70,7 +62,7 @@ export class RoleService {
     if (!role) {
       return ThrowInternalServer();
     }
-    const permission = role.permissions.find(
+    const permission = role.permission_flags.find(
       (p) => p.resource_id === resource?.id
     );
     if (!permission) {

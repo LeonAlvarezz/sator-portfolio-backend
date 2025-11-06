@@ -1,4 +1,3 @@
-import Logger from "@/logger/logger";
 import { CategoryService } from "@/services/category.service";
 import { BaseModelSchema } from "@/types/base.type";
 import { CreateCategorySchema } from "@/types/category.type";
@@ -31,7 +30,6 @@ export class CategoryController {
       const categories = await this.categoryService.findBySiteUser(req);
       res.json({ data: categories });
     } catch (error) {
-      Logger.error(error);
       next(error);
     }
   };
@@ -46,7 +44,6 @@ export class CategoryController {
       const categories = await this.categoryService.create(req, validated);
       res.json({ data: categories });
     } catch (error) {
-      Logger.error(error);
       next(error);
     }
   };
@@ -67,7 +64,6 @@ export class CategoryController {
       );
       res.json({ data: categories });
     } catch (error) {
-      Logger.error(error);
       next(error);
     }
   };
@@ -83,7 +79,6 @@ export class CategoryController {
       const categories = await this.categoryService.delete(params.id as string);
       res.json({ data: categories });
     } catch (error) {
-      Logger.error(error);
       next(error);
     }
   };

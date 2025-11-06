@@ -1,6 +1,6 @@
 import { pgEnum, pgTable, text, uuid } from "drizzle-orm/pg-core";
 import { enumToPgEnum, timestamps } from "../common";
-import { CategoryColorEnum } from "@/modules/category/entity/category.enum";
+import { CategoryColorEnum } from "@/modules/category/model/category.enum";
 import { admins, categoryOnBlogs, categoryOnPortfolios, siteUsers } from ".";
 import { relations } from "drizzle-orm";
 export const categoryColorEnum = pgEnum("CategoryColorEnum", enumToPgEnum(CategoryColorEnum))

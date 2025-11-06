@@ -1,4 +1,4 @@
-import prisma from "@/loaders/prisma";
+import prisma from "@/core/loaders/prisma";
 import type { CreateFormOption } from "@/types/portfolio-form.type";
 import type { Prisma } from "@prisma/client";
 

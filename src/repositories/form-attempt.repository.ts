@@ -1,5 +1,5 @@
 import { LIMIT } from "@/constant/base";
-import prisma from "@/loaders/prisma";
+import prisma from "@/core/loaders/prisma";
 import type { FormAttemptFilter } from "@/types/portfolio-form.type";
 import type { Prisma } from "@prisma/client";
 export class FormAttemptRepository {

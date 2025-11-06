@@ -1,4 +1,4 @@
-import prisma from "@/loaders/prisma";
+import prisma from "@/core/loaders/prisma";
 import { CategoryOnPortfolioRepository } from "@/repositories/category-on-portfolio.repository";
 import { PortfolioRepository } from "@/repositories/portfolio.repository";
 import type { CreatePortfolio, PortfolioFilter } from "@/types/portfolio.type";
@@ -6,7 +6,7 @@ import {
   ThrowForbidden,
   ThrowInternalServer,
   ThrowUnauthorized,
-} from "@/utils/exception";
+} from "@/core/response/error/errors";
 import { getPaginationMetadata } from "@/utils/pagination";
 import type { Request } from "express";
 import { SiteUserService } from "./site-user.service";

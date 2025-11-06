@@ -1,4 +1,4 @@
-import prisma from "@/loaders/prisma";
+import prisma from "@/core/loaders/prisma";
 import type { CreateChatMember } from "@/types/chat-member.type";
 import type { Prisma } from "@prisma/client";
 

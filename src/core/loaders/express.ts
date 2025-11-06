@@ -3,11 +3,12 @@ import type { NextFunction, Request, Response } from "express";
 import cors from "cors";
 import methodOverride from "method-override";
 import routes from "@/api";
-import errorMiddleware from "@/api/middleware/errorHandler";
+import errorMiddleware from "@/core/middleware/error-handler";
 import cookieParser from "cookie-parser";
 import { OpticMiddleware } from "@useoptic/express-middleware";
 import createHttpError from "http-errors";
-import { env } from "@/config";
+import { env } from "@/libs";
+import { responseWrapper } from "../middleware/response-wrapper";
 export default function configureExpress({
   app,
 }: {
@@ -19,6 +20,8 @@ export default function configureExpress({
   app.use(methodOverride());
   app.use(cookieParser());
   app.use(express.json());
+
+  app.use(responseWrapper);
 
   // API routes
   app.use(env.API_PREFIX, routes());

@@ -1,4 +1,3 @@
-import Logger from "@/logger/logger";
 import { RoleService } from "@/modules/role/role.service";
 import { BaseModelSchema } from "@/types/base.type";
 import {
@@ -18,7 +17,6 @@ export class RoleController {
       const roles = await this.roleService.findAll();
       res.json({ data: roles });
     } catch (error) {
-      Logger.error(error);
       next(error);
     }
   };
@@ -35,7 +33,6 @@ export class RoleController {
       const roles = await this.roleService.findById(validated);
       res.json({ data: roles });
     } catch (error) {
-      Logger.error(error);
       next(error);
     }
   };
@@ -50,7 +47,6 @@ export class RoleController {
       const roles = await this.roleService.create(validated);
       res.json({ data: roles });
     } catch (error) {
-      Logger.error(error);
       next(error);
     }
   };
@@ -67,7 +63,6 @@ export class RoleController {
       const roles = await this.roleService.delete(validated);
       res.json({ data: roles });
     } catch (error) {
-      Logger.error(error);
       next(error);
     }
   };
@@ -83,12 +78,11 @@ export class RoleController {
       });
       const validatedData = UpdateRoleSchema.parse(req.body);
       const roles = await this.roleService.update(
-        Number(validated.id),
+        validated.id as string,
         validatedData
       );
       res.json({ data: roles });
     } catch (error) {
-      Logger.error(error);
       next(error);
     }
   };
@@ -103,7 +97,6 @@ export class RoleController {
       const roles = await this.roleService.check(validated);
       res.json({ data: roles });
     } catch (error) {
-      Logger.error(error);
       next(error);
     }
   };

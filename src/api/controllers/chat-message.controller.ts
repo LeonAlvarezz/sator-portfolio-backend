@@ -6,7 +6,7 @@ import {
 import { RoomIdSchema } from "@/types/chat-room.type";
 import { getAdminCookie, getUserCookie } from "@/utils/cookie";
 import type { Request, Response, NextFunction } from "express";
-import { env } from "@/config";
+import { env } from "@/libs";
 
 export class ChatMessageController {
   private chatMessageService: ChatMessageService;

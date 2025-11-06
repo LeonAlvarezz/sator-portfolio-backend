@@ -1,6 +1,6 @@
 import { json, pgEnum, pgTable, text, uuid } from "drizzle-orm/pg-core";
 import { enumToPgEnum, timestamps } from "../common";
-import { ChatMessageTypeEnum } from "@/modules/chat-messages/entity/chat-message.enum";
+import { ChatMessageTypeEnum } from "@/modules/chat-messages/model/chat-message.enum";
 import { chatRooms, chatMembers } from ".";
 import { relations } from "drizzle-orm";
 export const chatMessageTypeEnum = pgEnum("ChatMessageType", enumToPgEnum(ChatMessageTypeEnum));

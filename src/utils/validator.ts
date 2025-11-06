@@ -2,7 +2,7 @@ import type { Request, Response, NextFunction } from "express";
 import { z, ZodError } from "zod";
 
 import { StatusCodes } from "http-status-codes";
-import { ThrowInternalServer } from "./exception";
+import { ThrowInternalServer } from "../core/response/error/errors";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function validateData(schema: z.ZodObject<any, any>) {

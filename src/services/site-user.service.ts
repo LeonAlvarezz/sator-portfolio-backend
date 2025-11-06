@@ -6,8 +6,11 @@ import type {
   SiteUserFilter,
 } from "@/types/site-user.type";
 import { getPaginationMetadata } from "@/utils/pagination";
-import { env } from "@/config";
-import { ThrowInternalServer, ThrowUnauthorized } from "@/utils/exception";
+import { env } from "@/libs";
+import {
+  ThrowInternalServer,
+  ThrowUnauthorized,
+} from "@/core/response/error/errors";
 import { verifyTOTP } from "@oslojs/otp";
 import { decrypt, decryptApiKey, encryptApiKey } from "@/utils/encryption";
 import { generateRandomUsername, getRandomString } from "@/utils/string";
@@ -17,7 +20,7 @@ import {
   hashPassword,
   verifyPassword,
 } from "@/utils/auth_util";
-import prisma from "@/loaders/prisma";
+import prisma from "@/core/loaders/prisma";
 import { AuthRepository } from "@/modules/auth/auth.repository";
 import { SessionRepository } from "@/modules/session/session.repository";
 import { SessionService } from "../modules/session/session.service";

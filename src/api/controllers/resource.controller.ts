@@ -1,4 +1,3 @@
-import Logger from "@/logger/logger";
 import { ResourceService } from "@/services/resource.service";
 import type { NextFunction, Response, Request } from "express";
 export class ResourceController {
@@ -15,7 +14,6 @@ export class ResourceController {
       const resources = await this.resourceService.findAll();
       res.json({ data: resources });
     } catch (error) {
-      Logger.error(error);
       next(error);
     }
   };

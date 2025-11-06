@@ -1,4 +1,4 @@
-import prisma from "@/loaders/prisma";
+import prisma from "@/core/loaders/prisma";
 import type { CreateCategory } from "@/types/category.type";
 
 export class CategoryRepository {

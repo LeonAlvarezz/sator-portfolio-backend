@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { ResourceController } from "../../controllers/resource.controller";
-import protectedRoute from "@/authentication/protected-route";
+import protectedRoute from "@/core/authentication/protected-route";
 
 const router = Router();
 const resourceController = new ResourceController();

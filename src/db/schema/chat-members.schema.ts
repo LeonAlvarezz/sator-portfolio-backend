@@ -1,7 +1,7 @@
 import { pgEnum, pgTable, timestamp, uuid } from "drizzle-orm/pg-core";
 import { enumToPgEnum } from "../common";
 import { admins, chatMessages, chatRooms, unreadMessages, users } from ".";
-import { ChatMemberRoleEnum } from "@/modules/chat-member/entity/chat-member.enum";
+import { ChatMemberRoleEnum } from "@/modules/chat-member/model/chat-member.enum";
 import { relations } from "drizzle-orm";
 export const chatMemberRole = pgEnum("ChatMemberRoleEnum", enumToPgEnum(ChatMemberRoleEnum))
 export const chatMembers = pgTable('chat_members', {

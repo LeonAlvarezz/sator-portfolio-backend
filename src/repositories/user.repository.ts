@@ -1,6 +1,6 @@
 import { db, type DrizzleTransaction } from "@/db";
 import { users } from "@/db/schema";
-import prisma from "@/loaders/prisma";
+import prisma from "@/core/loaders/prisma";
 import { type CreateUser, type UserFilter } from "@/types/user.type";
 import type { Prisma } from "@prisma/client";
 

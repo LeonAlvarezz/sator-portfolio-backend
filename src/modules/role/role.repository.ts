@@ -2,7 +2,7 @@ import { db, type DrizzleTransaction } from "@/db";
 import { roles } from "@/db/schema";
 import type { CreateRole } from "@/types/role.type";
 import { eq } from "drizzle-orm";
-import { AdminRoleEnum } from "./entity/role.enum";
+import { AdminRoleEnum } from "./model/role.enum";
 
 export class RoleRepository {
   public async findAll() {
@@ -29,19 +29,23 @@ export class RoleRepository {
 
   public async getAdminRole() {
     return db.query.roles.findFirst({
-      where: eq(roles.name, AdminRoleEnum.ADMIN)
-    })
+      where: eq(roles.name, AdminRoleEnum.ADMIN),
+    });
   }
 
   public async create(payload: CreateRole, tx?: DrizzleTransaction) {
     const client = tx ? tx : db;
-    return await client.insert(roles).values({
-      name: payload.name,
-    });
+    const [result] = await client
+      .insert(roles)
+      .values({
+        name: payload.name,
+      })
+      .returning();
+    return result;
   }
 
   public async delete(id: string, tx?: DrizzleTransaction) {
     const client = tx ? tx : db;
-    return client.delete(roles).where(eq(roles.id, id))
+    return client.delete(roles).where(eq(roles.id, id));
   }
 }

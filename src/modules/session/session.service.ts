@@ -3,7 +3,8 @@ import { sha256 } from "@oslojs/crypto/sha2";
 import { encodeHexLowerCase } from "@oslojs/encoding";
 import { SessionRepository } from "@/modules/session/session.repository";
 import type { CreateSession } from "./dto/create-session.dto";
-import type { SessionEntity } from "./entity/session.entity";
+import type { SessionEntity } from "./model/session.model";
+import { a } from "vitest/dist/chunks/suite.qtkXWc6R.js";
 
 export class SessionService {
   private sessionRepository: SessionRepository;
@@ -12,9 +13,11 @@ export class SessionService {
     this.sessionRepository = new SessionRepository();
   }
 
-  public async createSession(
-    payload: CreateSession
-  ): Promise<SessionEntity> {
+  public async findById(id: string) {
+    return this.sessionRepository.findSessionById(id);
+  }
+
+  public async createSession(payload: CreateSession): Promise<SessionEntity> {
     const sessionId = encodeHexLowerCase(
       sha256(new TextEncoder().encode(payload.token))
     );

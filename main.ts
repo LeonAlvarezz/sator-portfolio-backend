@@ -1,6 +1,6 @@
 import express from "express";
-import { env } from "@/config";
-import { loadEnv } from "@/utils/env";
+import { env } from "@/libs";
+import { loadEnv } from "@/libs/env";
 
 // Export the app and startServer function
 export const app = express();
@@ -12,7 +12,7 @@ export async function startServer() {
 
   try {
     console.log("Applying loaders...");
-    const loaders = await import("./src/loaders");
+    const loaders = await import("./src/core/loaders");
     await loaders.default({ expressApp: app });
 
     const port = env.NODE_ENV === "test" ? 0 : env.PORT;

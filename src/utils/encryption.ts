@@ -1,7 +1,7 @@
 import { createCipheriv, createDecipheriv } from "crypto";
 import { DynamicBuffer } from "@oslojs/binary";
 import { decodeBase64 } from "@oslojs/encoding";
-import { env } from "@/config";
+import { env } from "@/libs";
 import crypto from "crypto";
 
 const key = decodeBase64(env.ENCRYPTION_KEY ?? "");

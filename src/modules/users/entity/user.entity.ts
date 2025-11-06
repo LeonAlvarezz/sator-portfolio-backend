@@ -1,8 +1,6 @@
-export type User = {
-  id: string;
-  created_at: Date;
-  updated_at?: Date | null;
+import type { BaseModel } from "@/types/base.type";
+
+export type User = BaseModel & {
   username: string;
   auth_id: string;
-  default_chat_room_id: string | null;
 };

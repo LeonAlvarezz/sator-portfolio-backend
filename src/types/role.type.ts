@@ -9,7 +9,7 @@ export const CreateRoleSchema = z.object({
   permissions: z.array(
     z.object({
       delete: z.boolean(),
-      resource_id: z.number(),
+      resource_id: z.string(),
       read: z.boolean(),
       write: z.boolean(),
     })
@@ -20,7 +20,7 @@ export const UpdateRoleSchema = z.object({
   permissions: z.array(
     z.object({
       delete: z.boolean(),
-      resource_id: z.number(),
+      resource_id: z.string(),
       read: z.boolean(),
       write: z.boolean(),
     })
@@ -28,7 +28,7 @@ export const UpdateRoleSchema = z.object({
 });
 
 export const CheckRoleSchema = z.object({
-  role_id: z.number().min(1, { message: "Role ID is Required" }),
+  role_id: z.string().min(1, { message: "Role ID is Required" }),
   resource: z.string().min(1, { message: "Resource Name is Required" }),
 });
 

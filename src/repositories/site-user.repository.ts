@@ -1,5 +1,5 @@
 import { LIMIT } from "@/constant/base";
-import prisma from "@/loaders/prisma";
+import prisma from "@/core/loaders/prisma";
 import type { CreateSiteUser, SiteUserFilter } from "@/types/site-user.type";
 import { encryptApiKey } from "@/utils/encryption";
 import type { Prisma } from "@prisma/client";
