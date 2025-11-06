@@ -1,8 +1,8 @@
 import type { Request, Response, NextFunction } from "express";
 import { z, ZodError } from "zod";
 
-import { StatusCodes } from "http-status-codes";
-import { ThrowInternalServer } from "../core/response/error/errors";
+import { ErrorCode } from "@/core/response/error/exception";
+import { ThrowInternalServerError } from "@/core/response/error/errors";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function validateData(schema: z.ZodObject<any, any>) {
@@ -12,17 +12,12 @@ export function validateData(schema: z.ZodObject<any, any>) {
       next();
     } catch (error) {
       if (error instanceof ZodError) {
-        const errorMessages = error.errors.map(
+        const errorMessages = error.issues.map(
           (issue) => `${issue.path.join(".")} is ${issue.message}`
         );
-
-        console.log("errorMessages:", errorMessages);
-        res.status(StatusCodes.BAD_REQUEST).json({
-          statusCode: StatusCodes.BAD_REQUEST,
-          error: errorMessages,
-        });
+        res.error("Zod Error", ErrorCode.BAD_REQUEST, errorMessages);
       } else {
-        ThrowInternalServer();
+        ThrowInternalServerError();
       }
     }
   };

@@ -1,9 +1,9 @@
-import type { EncryptedUpdateTotp } from "../admin/admin.repository";
 import { encryptToBuffer } from "@/utils/encryption";
 import { db, type DrizzleTransaction } from "@/db";
 import { eq } from "drizzle-orm";
 import { auths } from "@/db/schema";
 import type { Signup } from "./dto/sign-up.dto";
+import type { DecryptedTotp } from "./dto/update-totp.dto";
 
 export class AuthRepository {
   public async findByEmail(email: string) {
@@ -50,7 +50,7 @@ export class AuthRepository {
 
   public async updateTotp(
     id: string,
-    payload: EncryptedUpdateTotp,
+    payload: DecryptedTotp,
     tx?: DrizzleTransaction
   ) {
     const encrypted = encryptToBuffer(payload.key);

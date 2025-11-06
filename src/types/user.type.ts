@@ -1,5 +1,5 @@
+import { BaseFilterSchema } from "@/core/types/base.type";
 import { z } from "zod";
-import { BaseFilterSchema } from "./base.type";
 
 export const CreateUserSchema = z.object({
   username: z.string().trim().min(1).max(20, {
@@ -9,7 +9,6 @@ export const CreateUserSchema = z.object({
 
 export const UserFilterSchema = BaseFilterSchema.extend({
   username: z.string().optional(),
-  email: z.string().optional(),
 });
 
 export type CreateUser = z.infer<typeof CreateUserSchema>;

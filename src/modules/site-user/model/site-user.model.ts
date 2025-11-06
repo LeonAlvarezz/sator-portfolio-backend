@@ -1,3 +1,5 @@
+import type { Auth } from "@/modules/auth/model/auth.model";
+
 export type SiteUser = {
   id: string;
   website_name: string;
@@ -7,4 +9,5 @@ export type SiteUser = {
   registered_at: Date | null;
   auth_id: string;
   user_id: string;
+  auth?: Auth;
 };

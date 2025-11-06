@@ -1,14 +1,14 @@
-import {
-  ThrowForbidden,
-  ThrowUnauthorized,
-} from "@/core/response/error/errors";
 import type { Request, Response, NextFunction } from "express";
 import { RoleRepository } from "@/modules/role/role.repository";
 import { ResourceRepository } from "@/repositories/resource.repository";
 import { getAdminCookie, getUserCookie } from "@/utils/cookie";
 import { AdminService } from "@/modules/admin/admin.service";
-import { UserService } from "@/services/user.service";
+import { UserService } from "@/modules/users/user.service";
 import { env } from "@/libs";
+import {
+  ForbiddenException,
+  UnauthorizedException,
+} from "../response/error/exception";
 
 type ProtectedRouteHandler = (
   req: Request,
@@ -42,19 +42,19 @@ function protectedRoute(
         : getUserCookie(req);
 
       if (!sessionToken) {
-        return ThrowUnauthorized(); // Handle unauthorized access
+        throw new UnauthorizedException(); // Handle unauthorized access
       }
       const auth = isAdminRoute
         ? await adminService.getMe(sessionToken)
         : await userService.getMe(sessionToken);
       if (!auth) {
-        return ThrowUnauthorized();
+        throw new UnauthorizedException(); // Handle unauthorized access
       }
 
       if (options && isAdminRoute) {
-        const role = await roleRepository.findById(auth.role_id);
+        const role = await roleRepository.findById(auth.admin!.role_id);
         if (!role) {
-          return ThrowForbidden();
+          throw new ForbiddenException(); // Handle unauthorized access
         }
 
         const resource = await resourceRepository.findByName(options.resource);
@@ -64,12 +64,12 @@ function protectedRoute(
         );
 
         if (!permission) {
-          return ThrowForbidden("You have no permission");
+          throw new ForbiddenException({ message: "You have no permission" });
         }
 
         const actionAllowed = permission[options.action];
         if (!actionAllowed) {
-          return ThrowForbidden("You have no permission");
+          throw new ForbiddenException({ message: "You have no permission" });
         }
       }
 

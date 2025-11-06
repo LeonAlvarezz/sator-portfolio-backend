@@ -1,7 +1,7 @@
 import type { Admin } from "@/modules/admin/model/admin.model";
 import type { SiteUser } from "@/modules/site-user/model/site-user.model";
-import type { User } from "@/modules/users/entity/user.entity";
-import type { BaseModel } from "@/types/base.type";
+import type { User } from "@/modules/users/model/user.model";
+import type { BaseModel } from "@/core/types/base.type";
 
 export type Auth = BaseModel & {
   email: string;

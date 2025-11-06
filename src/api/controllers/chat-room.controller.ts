@@ -4,7 +4,7 @@ import {
   ChatRoomFilterSchema,
   CreateChatRoomSchema,
 } from "@/types/chat-room.type";
-import { BaseModelSchema } from "@/types/base.type";
+import { BaseModelSchema } from "@/core/types/base.type";
 import { getUserCookie } from "@/utils/cookie";
 
 export class ChatRoomController {

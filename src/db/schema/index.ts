@@ -12,6 +12,8 @@ export * from "./resources.schema";
 export * from "./roles.schema";
 export * from "./site-users.schema";
 export * from "./portfolio-metric.schema";
+export * from "./site-metric.schema";
+export * from "./blog-metric.schema";
 export * from "./site-users.schema";
 export * from "./chat-rooms.schema";
 export * from "./chat-messages.schema";

@@ -3,15 +3,15 @@ import prisma from "@/core/loaders/prisma";
 import { BlogMetricRepository } from "@/repositories/blog-metric.repository";
 import { BlogRepository } from "@/repositories/blog.repository";
 import { CategoryOnBlogRepository } from "@/repositories/category-on-blog.repository";
-import { SiteUserRepository } from "@/repositories/site-user.repository";
-import type { Identity } from "@/types/base.type";
+import { SiteUserRepository } from "@/modules/site-user/site-user.repository";
+import type { Identity } from "@/core/types/base.type";
 import type { BlogFilter, CreateBlog } from "@/types/blog.type";
-import {
-  ThrowForbidden,
-  ThrowNotFound,
-  ThrowUnauthorized,
-} from "@/core/response/error/errors";
 import { getPaginationMetadata } from "@/utils/pagination";
+import {
+  ForbiddenException,
+  NotFoundException,
+  UnauthorizedException,
+} from "@/core/response/error/exception";
 
 export class BlogService {
   private blogRepository: BlogRepository;
@@ -30,7 +30,7 @@ export class BlogService {
 
   public async getAllSlugBySiteUser(key: string) {
     const siteUser = await this.siteUserRepository.findByApiKey(key);
-    if (!siteUser) return ThrowUnauthorized();
+    if (!siteUser) throw new UnauthorizedException();
     const slugs = await this.blogRepository.findAllSlug(siteUser.id);
     return slugs.map((slug) => {
       return slug.slug;
@@ -47,44 +47,35 @@ export class BlogService {
 
   public async paginateByAdmin(filter: BlogFilter) {
     const count = await this.blogRepository.count(filter);
-    const { current_page, page, page_count, page_size } = getPaginationMetadata(
-      filter,
-      count
-    );
+    const meta = getPaginationMetadata(filter, count);
     const blogs = await this.blogRepository.paginateAdmin(filter);
     return {
       data: blogs,
-      metadata: { page, page_count, page_size, current_page },
+      meta,
     };
   }
   public async paginateBySiteUser(site_user_id: string, filter: BlogFilter) {
     const count = await this.blogRepository.count(filter, {
       site_user_id,
     });
-    const { current_page, page, page_count, page_size } = getPaginationMetadata(
-      filter,
-      count
-    );
+    const meta = getPaginationMetadata(filter, count);
     const blogs = await this.blogRepository.paginateBySiteUserId(
       site_user_id,
       filter
     );
     return {
       data: blogs,
-      metadata: { page, page_count, page_size, current_page },
+      meta,
     };
   }
 
   public async paginateBySiteUserApiKey(key: string, filter: BlogFilter) {
     const siteUser = await this.siteUserRepository.findByApiKey(key);
-    if (!siteUser) return ThrowUnauthorized();
+    if (!siteUser) throw new UnauthorizedException();
     const count = await this.blogRepository.count(filter, {
       site_user_id: siteUser.id,
     });
-    const { current_page, page, page_count, page_size } = getPaginationMetadata(
-      filter,
-      count
-    );
+    const meta = getPaginationMetadata(filter, count);
     const publishedFilter = {
       ...filter,
       published_at: {
@@ -98,7 +89,7 @@ export class BlogService {
     );
     return {
       data: blogs,
-      metadata: { page, page_count, page_size, current_page },
+      meta,
     };
   }
 
@@ -125,9 +116,9 @@ export class BlogService {
 
   public async update(id: string, identity: Identity, payload: CreateBlog) {
     const blog = await this.blogRepository.findById(id);
-    if (!blog) return ThrowNotFound();
+    if (!blog) throw new NotFoundException();
     const owner_id = blog.admin_id || blog.site_user_id;
-    if (identity.id !== owner_id) return ThrowUnauthorized();
+    if (identity.id !== owner_id) throw new ForbiddenException();
     return await prisma.$transaction(async (tx) => {
       await this.categoryOnBlogRepository.deleteByBlogId(id);
       const blog = await this.blogRepository.update(id, payload, tx);
@@ -149,9 +140,9 @@ export class BlogService {
 
   public async increaseView(key: string, slug: string) {
     const siteUser = await this.siteUserRepository.findByApiKey(key);
-    if (!siteUser) return ThrowUnauthorized();
+    if (!siteUser) throw new UnauthorizedException();
     const blog = await this.blogRepository.findBySlug(slug);
-    if (!blog) return ThrowForbidden("No Record Found");
+    if (!blog) throw new NotFoundException();
     return await prisma.$transaction(async (tx) => {
       const metric = await this.blogMetricRepository.findByBlogToday(
         blog.id,

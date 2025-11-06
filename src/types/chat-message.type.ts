@@ -1,6 +1,6 @@
 import { ChatMessageType } from "@prisma/client";
 import { z } from "zod";
-import { BaseFilterSchema } from "./base.type";
+import { BaseFilterSchema } from "@/core/types/base.type";
 
 export const CreateChatMessageSchema = z.object({
   chat_member_id: z.string(),

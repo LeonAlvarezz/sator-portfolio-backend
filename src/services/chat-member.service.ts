@@ -1,19 +1,21 @@
 import { AdminRepository } from "@/modules/admin/admin.repository";
 import { ChatMemberRepository } from "@/repositories/chat-member.repository";
-import { UserRepository } from "@/repositories/user.repository";
+import { UserRepository } from "@/modules/users/user.repository";
 import type {
   CreateChatMember,
   InviteChatMember,
 } from "@/types/chat-member.type";
-import {
-  ThrowInternalServer,
-  ThrowUnauthorized,
-} from "@/core/response/error/errors";
 import { ChatMemberRole, ChatMessageType, Prisma } from "@prisma/client";
 import { ChatMessageService } from "./chat-message.service";
 import prisma from "@/core/loaders/prisma";
 import { UnreadMessageService } from "./unread-message.service";
 import { AdminService } from "../modules/admin/admin.service";
+import {
+  ForbiddenException,
+  InternalServerException,
+  NotFoundException,
+  UnauthorizedException,
+} from "@/core/response/error/exception";
 
 type ChatMemberWithAdminUser = Prisma.ChatMemberGetPayload<{
   include: { admin: true; user: true };
@@ -52,7 +54,7 @@ export class ChatMemberService {
     if (admin) {
       return { type: "ADMIN", entity: admin };
     }
-    return ThrowInternalServer("Record cannot be found");
+    throw new NotFoundException();
   }
 
   public async findAllInvitableMember(id?: string) {
@@ -104,7 +106,10 @@ export class ChatMemberService {
 
   public async join(payload: CreateChatMember) {
     const id = payload.admin_id || payload.user_id;
-    if (!id) return ThrowInternalServer("Admin ID Or User ID Cannot Be Empty");
+    if (!id)
+      throw new ForbiddenException({
+        message: "Admin ID Or User ID Cannot Be Empty",
+      });
     const chatMember = await prisma.$transaction(async (tx) => {
       const member = await this.chatMemberRepository.isMember(
         id,
@@ -129,12 +134,14 @@ export class ChatMemberService {
 
   public async remove(token: string, id: string) {
     const admin = await this.adminService.getMe(token);
-    if (!admin) return ThrowUnauthorized();
+    if (!admin) throw new UnauthorizedException();
     return await prisma.$transaction(async (tx) => {
       const member = await this.chatMemberRepository.findById(id, tx);
-      if (!member) return ThrowInternalServer("Member Cannot Be Found");
+      if (!member)
+        throw new NotFoundException({ message: "Member Cannot Be Found" });
       const isSelf = member.admin_id === admin.id;
-      if (isSelf) return ThrowInternalServer("You cannot remove yourself");
+      if (isSelf)
+        throw new ForbiddenException({ message: "You cannot remove yourself" });
       const chatMember = await this.chatMemberRepository.softDelete(
         member.id,
         tx
@@ -146,16 +153,17 @@ export class ChatMemberService {
 
   public async leave(token: string, roomId: string) {
     const admin = await this.adminService.getMe(token);
-    if (!admin) return ThrowUnauthorized();
+    if (!admin) throw new UnauthorizedException();
     return await prisma.$transaction(async (tx) => {
       const member = await this.chatMemberRepository.findByAdmin(
-        admin.id,
+        admin.id as string,
         roomId,
         tx
       );
-      if (!member) return ThrowInternalServer("Member Cannot Be Found");
+      if (!member)
+        throw new NotFoundException({ message: "Member Cannot Be Found" });
       const isNotSelf = member.admin_id !== admin.id;
-      if (isNotSelf) return ThrowInternalServer("Invalid Auth ID");
+      if (isNotSelf) throw new InternalServerException();
       const chatMember = await this.chatMemberRepository.softDelete(
         member.id,
         tx
@@ -171,7 +179,9 @@ export class ChatMemberService {
   private async broadcastJoin(member: ChatMemberWithAdminUser) {
     const username = member.admin?.username || member.user?.username;
     if (!username) {
-      return ThrowInternalServer("Username not found for the chat member");
+      throw new NotFoundException({
+        message: "Username not found for the chat member",
+      });
     }
 
     await this.chatMessageService.create({
@@ -185,7 +195,9 @@ export class ChatMemberService {
   private async broadcastLeave(member: ChatMemberWithAdminUser) {
     const username = member.admin?.username || member.user?.username;
     if (!username) {
-      return ThrowInternalServer("Username not found for the chat member");
+      throw new NotFoundException({
+        message: "Username not found for the chat member",
+      });
     }
 
     await this.chatMessageService.create({
@@ -199,7 +211,9 @@ export class ChatMemberService {
   private async broadcastRemove(member: ChatMemberWithAdminUser) {
     const username = member.admin?.username || member.user?.username;
     if (!username) {
-      return ThrowInternalServer("Username not found for the chat member");
+      throw new NotFoundException({
+        message: "Username not found for the chat member",
+      });
     }
 
     await this.chatMessageService.create({
@@ -213,7 +227,9 @@ export class ChatMemberService {
   private async broadcastInvite(member: ChatMemberWithAdminUser) {
     const username = member.admin?.username || member.user?.username;
     if (!username) {
-      return ThrowInternalServer("Username not found for the chat member");
+      throw new NotFoundException({
+        message: "Username not found for the chat member",
+      });
     }
 
     await this.chatMessageService.create({

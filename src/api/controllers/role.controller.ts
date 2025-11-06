@@ -1,5 +1,5 @@
 import { RoleService } from "@/modules/role/role.service";
-import { BaseModelSchema } from "@/types/base.type";
+import { BaseModelSchema } from "@/core/types/base.type";
 import {
   CheckRoleSchema,
   CreateRoleSchema,

@@ -1,5 +1,18 @@
-import { env } from "@/libs";
 import winston from "winston";
+
+const transports = [];
+if (process.env.NODE_ENV !== "development") {
+  transports.push(new winston.transports.Console());
+} else {
+  transports.push(
+    new winston.transports.Console({
+      format: winston.format.combine(
+        winston.format.cli(),
+        winston.format.splat()
+      ),
+    })
+  );
+}
 
 const Logger = winston.createLogger({
   level: "silly",
@@ -12,6 +25,7 @@ const Logger = winston.createLogger({
     winston.format.splat(),
     winston.format.json()
   ),
+  transports,
 });
 
 export default Logger;

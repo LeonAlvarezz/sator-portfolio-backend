@@ -1,12 +1,12 @@
 import { FormAttemptService } from "@/services/form-attempt.service";
-import { BaseModelSchema } from "@/types/base.type";
+import { BaseModelSchema } from "@/core/types/base.type";
 import {
   CreateFormAttemptSchema,
   FormAttemptFilterSchema,
 } from "@/types/portfolio-form.type";
 import { getUserCookie } from "@/utils/cookie";
-import { ThrowForbidden } from "@/core/response/error/errors";
 import type { Request, Response, NextFunction } from "express";
+import { ForbiddenException } from "@/core/response/error/exception";
 
 export class FormAttemptController {
   private formAttemptService: FormAttemptService;
@@ -21,7 +21,7 @@ export class FormAttemptController {
   ) => {
     try {
       const token = getUserCookie(req);
-      if (!token) return ThrowForbidden();
+      if (!token) throw new ForbiddenException();
       const data = await this.formAttemptService.findByUser(token);
       res.json({ data });
     } catch (error) {
@@ -35,7 +35,7 @@ export class FormAttemptController {
   ) => {
     try {
       const token = getUserCookie(req);
-      if (!token) return ThrowForbidden();
+      if (!token) throw new ForbiddenException();
       const filter = FormAttemptFilterSchema.parse(req.query);
       const data = await this.formAttemptService.paginateByUser(token, filter);
       res.json({ data });
@@ -51,7 +51,7 @@ export class FormAttemptController {
     try {
       const validated = BaseModelSchema.parse(req.params);
       const token = getUserCookie(req);
-      if (!token) return ThrowForbidden();
+      if (!token) throw new ForbiddenException();
       const data = await this.formAttemptService.getAttemptById(
         token,
         validated.id as string
@@ -65,7 +65,7 @@ export class FormAttemptController {
     try {
       const validated = CreateFormAttemptSchema.parse(req.body);
       const token = getUserCookie(req);
-      if (!token) return ThrowForbidden();
+      if (!token) throw new ForbiddenException();
       const data = await this.formAttemptService.create(token, validated);
       res.json({ data });
     } catch (error) {
@@ -73,22 +73,23 @@ export class FormAttemptController {
     }
   };
 
-  public bringItToLife = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      // const validated = CreateChatMessageSchema.parse(req.body);
-      const validated = BaseModelSchema.parse(req.params);
-      const token = getUserCookie(req);
-      const message = await this.formAttemptService.bringItToLife(
-        token,
-        validated.id as string
-      );
-      res.json({ data: message });
-    } catch (error) {
-      next(error);
-    }
-  };
+  //TODO: Comment this function out for now
+  // public bringItToLife = async (
+  //   req: Request,
+  //   res: Response,
+  //   next: NextFunction
+  // ) => {
+  //   try {
+  //     // const validated = CreateChatMessageSchema.parse(req.body);
+  //     const validated = BaseModelSchema.parse(req.params);
+  //     const token = getUserCookie(req);
+  //     const message = await this.formAttemptService.bringItToLife(
+  //       token,
+  //       validated.id as string
+  //     );
+  //     res.json({ data: message });
+  //   } catch (error) {
+  //     next(error);
+  //   }
+  // };
 }

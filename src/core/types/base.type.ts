@@ -23,7 +23,7 @@ export const BaseModelSchema = z.object({
     z.number(),
   ]),
   created_at: z.date(),
-  updated_at: z.date().optional(),
+  updated_at: z.date().optional().nullable(),
   deleted_at: z.date().optional().nullable(),
 });
 

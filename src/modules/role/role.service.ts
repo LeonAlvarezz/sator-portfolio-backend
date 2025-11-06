@@ -1,13 +1,10 @@
 import { PermissionFlagRepository } from "@/repositories/permission-flag.repository";
 import { ResourceRepository } from "@/repositories/resource.repository";
 import { RoleRepository } from "@/modules/role/role.repository";
-import type { BaseModel } from "@/types/base.type";
+import type { BaseModel } from "@/core/types/base.type";
 import type { CheckRole, CreateRole, UpdateRole } from "@/types/role.type";
-import {
-  ThrowForbidden,
-  ThrowInternalServer,
-} from "@/core/response/error/errors";
 import { db } from "@/db";
+import { ForbiddenException } from "@/core/response/error/exception";
 
 export class RoleService {
   private roleRepository: RoleRepository;
@@ -43,7 +40,7 @@ export class RoleService {
     return await db.transaction(async (tx) => {
       const role = await this.roleRepository.findById(role_id, tx);
       if (!role) {
-        return ThrowForbidden("Role is Not Found");
+        throw new ForbiddenException({ message: "Role not accessible" });
       }
       const permissionPromises = payload.permissions.map((permission) =>
         this.permissionFlagRepository.upsert(role.id, permission, tx)
@@ -60,18 +57,18 @@ export class RoleService {
     const role = await this.roleRepository.findById(payload.role_id);
     const resource = await this.resourceRepository.findByName(payload.resource);
     if (!role) {
-      return ThrowInternalServer();
+      throw new ForbiddenException({ message: "Role not accessible" });
     }
     const permission = role.permission_flags.find(
       (p) => p.resource_id === resource?.id
     );
     if (!permission) {
-      return ThrowForbidden("You have no permission");
+      throw new ForbiddenException({ message: "You have no permission" });
     }
 
     const actionAllowed = permission["read"];
     if (!actionAllowed) {
-      return ThrowForbidden("You have no permission");
+      throw new ForbiddenException({ message: "You have no permission" });
     }
     return role;
   }

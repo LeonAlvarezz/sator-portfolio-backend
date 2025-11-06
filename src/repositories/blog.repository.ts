@@ -1,7 +1,7 @@
 import { LIMIT } from "@/constant/base";
 import { ContentStatus } from "@/enum/content.enum";
 import prisma from "@/core/loaders/prisma";
-import { IdentityRole, type Identity } from "@/types/base.type";
+import { IdentityRole, type Identity } from "@/core/types/base.type";
 import type { BlogFilter, CreateBlog } from "@/types/blog.type";
 import { Prisma } from "@prisma/client";
 

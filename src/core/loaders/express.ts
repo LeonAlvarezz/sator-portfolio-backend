@@ -27,7 +27,8 @@ export default function configureExpress({
   app.use(env.API_PREFIX, routes());
 
   // 404 Handler - should be after all valid routes
-  app.all("*", (_req: Request, res: Response, next: NextFunction) => {
+  // API routes
+  app.use("/{*any}", (_req, res, next) => {
     next(createHttpError(404, "Endpoint Not Found"));
   });
 

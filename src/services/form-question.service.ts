@@ -1,12 +1,12 @@
 import { LIMIT } from "@/constant/base";
 import prisma from "@/core/loaders/prisma";
+import { NotFoundException } from "@/core/response/error/exception";
 import { FormOptionRepository } from "@/repositories/form-option.repository";
 import { FormQuestionRepository } from "@/repositories/form-question.repository";
 import type {
   CreateFormQuestion,
   PortfolioFormFilter,
 } from "@/types/portfolio-form.type";
-import { ThrowNotFound } from "@/core/response/error/errors";
 
 export class FormQuestionService {
   private formQuestionRepository: FormQuestionRepository;
@@ -33,7 +33,7 @@ export class FormQuestionService {
   public async findById(id: string) {
     if (id === "first") {
       const formQuestion = await this.formQuestionRepository.findFirstEntry();
-      if (!formQuestion) return ThrowNotFound();
+      if (!formQuestion) throw new NotFoundException();
       const nextPrevious =
         await this.formQuestionRepository.findNextPreviousQuestionIds(
           formQuestion.order
@@ -44,7 +44,7 @@ export class FormQuestionService {
       };
     }
     const formQuestion = await this.formQuestionRepository.findById(id);
-    if (!formQuestion) return ThrowNotFound();
+    if (!formQuestion) throw new NotFoundException();
     const nextPrevious =
       await this.formQuestionRepository.findNextPreviousQuestionIds(
         formQuestion.order

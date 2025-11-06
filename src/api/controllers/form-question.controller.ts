@@ -1,12 +1,12 @@
 import { FormQuestionService } from "@/services/form-question.service";
-import { BaseModelSchema } from "@/types/base.type";
+import { BaseModelSchema } from "@/core/types/base.type";
 import {
   CreateFormQuestionSchema,
   PortfolioFormFilterSchema,
 } from "@/types/portfolio-form.type";
-import { ThrowInternalServer } from "@/core/response/error/errors";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import type { NextFunction, Request, Response } from "express";
+import { ForbiddenException } from "@/core/response/error/exception";
 
 export class FormQuestionController {
   private formQuestionService: FormQuestionService;
@@ -64,7 +64,7 @@ export class FormQuestionController {
         err instanceof PrismaClientKnownRequestError &&
         err.code === "P2002"
       ) {
-        return ThrowInternalServer("Order must be unique");
+        throw new ForbiddenException({ message: "Order must be unique" });
       }
       next(err);
     }

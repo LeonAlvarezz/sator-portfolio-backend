@@ -1,21 +1,18 @@
 import { BlogService } from "@/services/blog.service";
-import { SiteUserService } from "@/services/site-user.service";
+import { SiteUserService } from "@/modules/site-user/site-user.service";
 import {
   BaseModelSchema,
   IdentityRole,
   ValidatedSlugSchema,
   type Identity,
-} from "@/types/base.type";
+} from "@/core/types/base.type";
 import { BlogFilterSchema, CreateBlogSchema } from "@/types/blog.type";
 import { getAdminCookie, getSiteUserCookie } from "@/utils/cookie";
-import {
-  ThrowForbidden,
-  ThrowUnauthorized,
-} from "@/core/response/error/errors";
 import type { NextFunction, Request, Response } from "express";
 import { env } from "@/libs";
 import { AdminService } from "@/modules/admin/admin.service";
 import { SimpleSuccess } from "@/core/response/response";
+import { UnauthorizedException } from "@/core/response/error/exception";
 
 export class BlogController {
   private blogService: BlogService;
@@ -42,7 +39,7 @@ export class BlogController {
   ) => {
     try {
       const key = req.headers.authorization?.split(" ")[1];
-      if (!key) return ThrowUnauthorized("No Token Found");
+      if (!key) throw new UnauthorizedException({ message: "No Token Found" });
       const resources = await this.blogService.getAllSlugBySiteUser(key);
       res.json({ data: resources });
     } catch (error) {
@@ -91,7 +88,7 @@ export class BlogController {
   ) => {
     try {
       const key = req.headers.authorization?.split(" ")[1];
-      if (!key) return ThrowUnauthorized("No Token Found");
+      if (!key) throw new UnauthorizedException({ message: "No Token Found" });
       const filter = BlogFilterSchema.parse(req.query);
       const portfolios = await this.blogService.paginateBySiteUserApiKey(
         key,
@@ -128,12 +125,12 @@ export class BlogController {
   ) => {
     try {
       const sessionToken = getSiteUserCookie(req);
-      if (!sessionToken) return ThrowForbidden("No Token");
+      if (!sessionToken) throw new UnauthorizedException();
       const siteUser = await this.siteUserService.getMe(sessionToken);
-      if (!siteUser) return ThrowUnauthorized();
+      if (!siteUser) throw new UnauthorizedException();
       const filter = BlogFilterSchema.parse(req.query);
       const blogs = await this.blogService.paginateBySiteUser(
-        siteUser.id,
+        siteUser.id as string,
         filter
       );
       res.json({
@@ -152,14 +149,14 @@ export class BlogController {
         const token = getAdminCookie(req);
         const admin = await this.adminService.getMe(token);
         identity = {
-          id: admin.id,
+          id: admin.id as string,
           role: IdentityRole.ADMIN,
         };
       } else {
         const token = getSiteUserCookie(req);
         const siteUser = await this.siteUserService.getMe(token);
         identity = {
-          id: siteUser.id,
+          id: siteUser.id as string,
           role: IdentityRole.SITE_USER,
         };
       }
@@ -178,14 +175,14 @@ export class BlogController {
         const token = getAdminCookie(req);
         const admin = await this.adminService.getMe(token);
         identity = {
-          id: admin.id,
+          id: admin.id as string,
           role: IdentityRole.ADMIN,
         };
       } else {
         const token = getSiteUserCookie(req);
         const siteUser = await this.siteUserService.getMe(token);
         identity = {
-          id: siteUser.id,
+          id: siteUser.id as string,
           role: IdentityRole.SITE_USER,
         };
       }
@@ -240,7 +237,7 @@ export class BlogController {
   ) => {
     try {
       const key = req.headers.authorization?.split(" ")[1];
-      if (!key) return ThrowUnauthorized("No Token Found");
+      if (!key) throw new UnauthorizedException();
       const validatedSlug = ValidatedSlugSchema.parse({
         slug: req.params.slug,
       });

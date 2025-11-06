@@ -1,4 +1,4 @@
-import type { BaseModel } from "@/types/base.type";
+import type { BaseModel } from "@/core/types/base.type";
 
 export type User = BaseModel & {
   username: string;

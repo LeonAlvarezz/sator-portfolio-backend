@@ -1,9 +1,8 @@
-import { UserService } from "@/services/user.service";
+import { UserService } from "@/modules/users/user.service";
 import { LoginSchema, SignUpSchema } from "@/types/auth.type";
-import { COOKIE } from "@/types/base.type";
+import { COOKIE } from "@/core/types/base.type";
 import { UserFilterSchema } from "@/types/user.type";
 import { getUserCookie, setCookie } from "@/utils/cookie";
-import { ThrowUnauthorized } from "@/core/response/error/errors";
 import type { Request, Response, NextFunction } from "express";
 
 export class UserController {
@@ -49,9 +48,6 @@ export class UserController {
   public getMe = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const sessionToken = getUserCookie(req);
-      if (!sessionToken) {
-        return ThrowUnauthorized();
-      }
       const auth = await this.userService.getMe(sessionToken);
       res.json({ data: auth });
     } catch (error) {
@@ -66,7 +62,7 @@ export class UserController {
   ) => {
     try {
       const validated = LoginSchema.parse(req.body);
-      const user = await this.userService.login(validated);
+      const user = await this.userService.signin(validated);
       setCookie(res, COOKIE.USER, user.token);
       res.json({ data: user });
     } catch (error) {

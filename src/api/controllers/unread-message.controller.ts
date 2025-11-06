@@ -1,5 +1,5 @@
 import { UnreadMessageService } from "@/services/unread-message.service";
-import { BaseModelSchema } from "@/types/base.type";
+import { BaseModelSchema } from "@/core/types/base.type";
 import type { NextFunction, Response, Request } from "express";
 export class UnreadMessageController {
   private unreadMessageService: UnreadMessageService;

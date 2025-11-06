@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { BaseFilterSchema } from "./base.type";
+import { BaseFilterSchema } from "@/core/types/base.type";
 
 export const CreateChatRoomSchema = z.object({
   name: z.string().min(1, { message: "Name is Required" }),

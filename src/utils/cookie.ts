@@ -1,4 +1,4 @@
-import { COOKIE } from "@/types/base.type";
+import { COOKIE } from "@/core/types/base.type";
 import type { CookieOptions, Request, Response } from "express";
 
 export function setCookie(res: Response, name: string, value: string) {

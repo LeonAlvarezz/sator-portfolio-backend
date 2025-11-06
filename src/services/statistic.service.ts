@@ -1,6 +1,6 @@
 import { BlogMetricRepository } from "@/repositories/blog-metric.repository";
 import { PortfolioMetricRepository } from "@/repositories/portfolio-metric.repository";
-import { SiteMetricRepository } from "@/repositories/site-metric-repository";
+import { SiteMetricRepository } from "@/modules/site-metric/site-metric-repository";
 import type { DailyMetric } from "@/types/statistic.type";
 
 export class StatisticService {

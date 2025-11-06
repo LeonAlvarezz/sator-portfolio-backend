@@ -50,38 +50,38 @@ export default () => {
 
   // User routes remain top-level
   user(app);
-  chatRoom(app);
-  chatMember(app);
-  chatMessage(app);
-  unreadMessage(app);
-  formQuestion(app);
-  formAttempt(app);
-  blog(app);
-  test(app);
+  // chatRoom(app);
+  // chatMember(app);
+  // chatMessage(app);
+  // unreadMessage(app);
+  // formQuestion(app);
+  // formAttempt(app);
+  // blog(app);
+  // test(app);
 
   // Site user routes group
   const siteUserRouter = Router();
   siteUser(siteUserRouter);
-  siteUserPortfolio(siteUserRouter);
-  siteUserCategory(siteUserRouter);
-  siteUserStatistic(siteUserRouter);
-  siteUserBlog(siteUserRouter);
+  // siteUserPortfolio(siteUserRouter);
+  // siteUserCategory(siteUserRouter);
+  // siteUserStatistic(siteUserRouter);
+  // siteUserBlog(siteUserRouter);
   app.use("/site-user", siteUserRouter);
 
   // Admin routes group
   const adminRouter = Router();
   adminRouteAdmin(adminRouter);
   adminRouteRole(adminRouter);
-  adminRouteBlog(adminRouter);
-  adminRouteUser(adminRouter);
-  adminRouteResource(adminRouter);
-  adminRoutePortfolio(adminRouter);
-  adminRouteCategory(adminRouter);
-  adminRouteFormQuestion(adminRouter);
-  adminRouteChatRoom(adminRouter);
-  adminRouteChatMessage(adminRouter);
-  adminRouteChatMember(adminRouter);
-  adminUnreadMessage(adminRouter);
+  // adminRouteBlog(adminRouter);
+  // adminRouteUser(adminRouter);
+  // adminRouteResource(adminRouter);
+  // adminRoutePortfolio(adminRouter);
+  // adminRouteCategory(adminRouter);
+  // adminRouteFormQuestion(adminRouter);
+  // adminRouteChatRoom(adminRouter);
+  // adminRouteChatMessage(adminRouter);
+  // adminRouteChatMember(adminRouter);
+  // adminUnreadMessage(adminRouter);
   adminSiteUser(adminRouter);
   app.use("/admin", adminRouter);
 

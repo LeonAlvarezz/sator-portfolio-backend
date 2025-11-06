@@ -1,11 +1,11 @@
 import { CategoryRepository } from "@/repositories/category.repository";
 import type { CreateCategory } from "@/types/category.type";
-import { ThrowUnauthorized } from "@/core/response/error/errors";
 import type { Request } from "express";
-import { SiteUserService } from "./site-user.service";
+import { SiteUserService } from "../modules/site-user/site-user.service";
 import { AdminService } from "../modules/admin/admin.service";
 import { getAdminCookie, getSiteUserCookie } from "@/utils/cookie";
 import { env } from "@/libs";
+import { UnauthorizedException } from "@/core/response/error/exception";
 
 export class CategoryService {
   private categoryRepository: CategoryRepository;
@@ -22,8 +22,8 @@ export class CategoryService {
   public async findBySiteUser(req: Request) {
     const sessionToken = getSiteUserCookie(req);
     const siteUser = await this.siteUserService.getMe(sessionToken);
-    if (!siteUser) return ThrowUnauthorized();
-    return this.categoryRepository.findBySiteUser(siteUser.id!);
+    if (!siteUser) throw new UnauthorizedException();
+    return this.categoryRepository.findBySiteUser(siteUser.id as string);
   }
   public async create(req: Request, payload: CreateCategory) {
     const isAdmin = req.originalUrl.startsWith(`${env.API_PREFIX}/admin`);
@@ -31,8 +31,8 @@ export class CategoryService {
     const auth = isAdmin
       ? await this.adminService.getMe(sessionToken)
       : await this.siteUserService.getMe(sessionToken);
-    if (!auth) return ThrowUnauthorized();
-    return this.categoryRepository.create(auth.id, isAdmin, payload);
+    if (!auth) throw new UnauthorizedException();
+    return this.categoryRepository.create(auth.id as string, isAdmin, payload);
   }
 
   public async update(id: string, payload: CreateCategory) {

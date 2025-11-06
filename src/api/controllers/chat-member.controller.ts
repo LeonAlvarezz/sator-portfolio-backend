@@ -1,5 +1,5 @@
 import { ChatMemberService } from "@/services/chat-member.service";
-import { BaseModelSchema } from "@/types/base.type";
+import { BaseModelSchema } from "@/core/types/base.type";
 import {
   CreateChatMemberSchema,
   InviteChatMemberSchema,

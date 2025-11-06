@@ -1,4 +1,3 @@
-import type { Login, Signup } from "@/types/auth.type";
 import { authUtil } from "./auth.util";
 import { db, type DrizzleTransaction } from "@/db";
 import { AuthRepository } from "./auth.repository";
@@ -10,9 +9,14 @@ import { SessionService } from "../session/session.service";
 import type { SessionResponse } from "./dto/session-response.dto";
 import {
   ForbiddenException,
+  InternalServerException,
   NotFoundException,
   UnauthorizedException,
 } from "@/core/response/error/exception";
+import type { CreateAuth } from "./dto/create-auth.dto";
+import type { Signin } from "./dto/sign-in.dto";
+import type { UpdateTotp } from "@/types/auth.type";
+import { decodeBase64 } from "@oslojs/encoding";
 
 export class AuthService {
   private readonly authRepository: AuthRepository;
@@ -21,7 +25,10 @@ export class AuthService {
     this.authRepository = new AuthRepository();
     this.sessionService = new SessionService();
   }
-  public async create(payload: Signup, tx?: DrizzleTransaction): Promise<Auth> {
+  public async create(
+    payload: CreateAuth,
+    tx?: DrizzleTransaction
+  ): Promise<Auth> {
     const passwordHash = await authUtil.hashPassword(payload.password);
     return this.authRepository.create(
       {
@@ -32,8 +39,8 @@ export class AuthService {
     );
   }
 
-  public async signin(payload: Login): Promise<SessionResponse> {
-    const auth = await this.authRepository.checkByEmail(payload.email);
+  public async signin(payload: Signin): Promise<SessionResponse> {
+    const auth = await this.findByEmail(payload.email);
     if (!auth) {
       throw new UnauthorizedException();
     }
@@ -70,7 +77,7 @@ export class AuthService {
     const session = await this.sessionService.createSession({
       token: sessionToken,
       two_factor_verified: !!auth.totp_key,
-      auth_id: auth.id,
+      auth_id: auth.id as string,
     });
 
     return {
@@ -82,7 +89,6 @@ export class AuthService {
   public async signout(token: string) {
     const id = authUtil.decodeToSessionId(token);
     await this.sessionService.invalidateSession(id);
-    return;
   }
 
   public async getMe(token: string): Promise<Auth> {
@@ -96,6 +102,45 @@ export class AuthService {
   }
 
   public async findByEmail(email: string): Promise<Auth | undefined> {
-    return await this.authRepository.checkByEmail(email);
+    return await this.authRepository.findByEmail(email);
+  }
+
+  public async updateTotp(
+    token: string,
+    payload: UpdateTotp
+  ): Promise<Auth | undefined> {
+    const sessionId = authUtil.decodeToSessionId(token);
+    const auth = await this.getMe(token);
+
+    if (!auth) throw new ForbiddenException();
+
+    return await db.transaction(async (tx) => {
+      await this.sessionService.updateTwoFactorVerified(sessionId, tx);
+      const key = decodeBase64(payload.key);
+      if (key.byteLength !== 20)
+        throw new InternalServerException({
+          message: "Invalid Key, ByteLength Invalid",
+        });
+
+      if (!verifyTOTP(key, 30, 6, payload.code))
+        throw new UnauthorizedException({ message: "Invalid Code" });
+
+      return await this.authRepository.updateTotp(
+        sessionId,
+        {
+          ...payload,
+          key,
+        },
+        tx
+      );
+    });
+  }
+
+  public updatePassword(
+    id: string,
+    newPassword: string,
+    tx?: DrizzleTransaction
+  ) {
+    return this.authRepository.updatePassword(id, newPassword, tx);
   }
 }

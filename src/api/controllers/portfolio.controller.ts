@@ -5,14 +5,14 @@ import {
   BaseModelSchema,
   IdentityRole,
   ValidatedSlugSchema,
-} from "@/types/base.type";
+} from "@/core/types/base.type";
 import {
   CreatePortfolioSchema,
   PortfolioFilterSchema,
 } from "@/types/portfolio.type";
 import { getAdminCookie, getSiteUserCookie } from "@/utils/cookie";
-import { ThrowUnauthorized } from "@/core/response/error/errors";
 import type { NextFunction, Response, Request } from "express";
+import { UnauthorizedException } from "@/core/response/error/exception";
 
 export class PortfolioController {
   private portfolioService: PortfolioService;
@@ -27,7 +27,7 @@ export class PortfolioController {
   ) => {
     try {
       const key = req.headers.authorization?.split(" ")[1];
-      if (!key) return ThrowUnauthorized("No Token Found");
+      if (!key) throw new UnauthorizedException();
       const resources = await this.portfolioService.getAllSlugBySiteUser(key);
       res.json({ data: resources });
     } catch (error) {
@@ -122,7 +122,7 @@ export class PortfolioController {
   ) => {
     try {
       const key = req.headers.authorization?.split(" ")[1];
-      if (!key) return ThrowUnauthorized("No Token Found");
+      if (!key) throw new UnauthorizedException();
       const filter = PortfolioFilterSchema.parse(req.query);
       const portfolios = await this.portfolioService.paginateBySiteUserApiKey(
         key,
@@ -246,7 +246,7 @@ export class PortfolioController {
   ) => {
     try {
       const key = req.headers.authorization?.split(" ")[1];
-      if (!key) return ThrowUnauthorized("No Token Found");
+      if (!key) throw new UnauthorizedException();
       const params = ValidatedSlugSchema.parse({
         slug: req.params.slug,
       });

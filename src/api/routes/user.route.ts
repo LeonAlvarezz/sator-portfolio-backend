@@ -1,11 +1,27 @@
+import protectedRoute from "@/core/authentication/protected-route";
+import { UserController } from "@/modules/users/user.controller";
+import { CreateUserSchema } from "@/types/user.type";
+import { validateData } from "@/utils/validator";
 import { Router } from "express";
-import { UserController } from "../controllers/user.controller";
 
 const router = Router();
 const userController = new UserController();
 
 export default (app: Router) => {
   app.use("/user", router);
-  router.post("/", userController.userLogin);
-  router.get("/me", userController.getMe);
+  router.get(
+    "/all",
+    protectedRoute(userController.getUsers, {
+      resource: "User",
+      action: "read",
+    })
+  );
+  router.get(
+    "/",
+    protectedRoute(userController.paginateUsers, {
+      resource: "User",
+      action: "read",
+    })
+  );
+  router.post("/", validateData(CreateUserSchema), userController.signup);
 };

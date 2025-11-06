@@ -1,4 +1,4 @@
-import { SiteUserController } from "@/api/controllers/site-user.controller";
+import { SiteUserController } from "@/modules/site-user/site-user.controller";
 import protectedRoute from "@/core/authentication/protected-route";
 import { Router } from "express";
 

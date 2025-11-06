@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { BaseFilterSchema } from "./base.type";
+import { BaseFilterSchema } from "@/core/types/base.type";
 
 export const CreateFormOptionSchema = z.object({
   // question_id: z.string().min(1, { message: "Question ID is required" }),

@@ -4,7 +4,7 @@ import { encodeHexLowerCase } from "@oslojs/encoding";
 import { SessionRepository } from "@/modules/session/session.repository";
 import type { CreateSession } from "./dto/create-session.dto";
 import type { SessionEntity } from "./model/session.model";
-import { a } from "vitest/dist/chunks/suite.qtkXWc6R.js";
+import type { DrizzleTransaction } from "@/db";
 
 export class SessionService {
   private sessionRepository: SessionRepository;
@@ -44,5 +44,8 @@ export class SessionService {
       const extendedTime = new Date(Date.now() + SESSION_EXPIRES_DATE_MS);
       await this.sessionRepository.updateSessionExpiredAt(id, extendedTime);
     }
+  }
+  public updateTwoFactorVerified(id: string, tx: DrizzleTransaction) {
+    return this.sessionRepository.updateTwoFactorVerified(id, tx);
   }
 }

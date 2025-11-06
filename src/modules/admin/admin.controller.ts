@@ -1,12 +1,10 @@
 import { AdminService } from "@/modules/admin/admin.service";
 import { AssignAdminRoleSchema } from "@/types/admin.type";
-import { LoginSchema, SignUpSchema, UpdateTotpSchema } from "@/types/auth.type";
 import { getAdminCookie } from "@/utils/cookie";
-import {
-  ThrowInternalServer,
-  ThrowUnauthorized,
-} from "@/core/response/error/errors";
 import type { Request, Response, NextFunction } from "express";
+import { SigninSchema } from "../auth/dto/sign-in.dto";
+import { UpdateTotpSchema } from "../auth/dto/update-totp.dto";
+import { SignUpSchema } from "../auth/dto/sign-up.dto";
 
 export class AdminController {
   private adminService: AdminService;
@@ -40,9 +38,9 @@ export class AdminController {
 
   public login = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const validated = LoginSchema.parse(req.body);
-      const admin = await this.adminService.login(res, validated);
-      res.json({ data: admin });
+      const validated = SigninSchema.parse(req.body);
+      const admin = await this.adminService.signin(validated);
+      res.success(admin);
     } catch (error) {
       next(error);
     }
@@ -51,10 +49,7 @@ export class AdminController {
   public signout = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const token = getAdminCookie(req);
-      const result = await this.adminService.signout(token);
-      if (!result) {
-        return ThrowInternalServer();
-      }
+      await this.adminService.signout(token);
       res.json({
         data: "Successfully Sign Out",
       });
@@ -66,9 +61,6 @@ export class AdminController {
   public getMe = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const sessionToken = getAdminCookie(req);
-      if (!sessionToken) {
-        return ThrowUnauthorized();
-      }
       const auth = await this.adminService.getMe(sessionToken);
       res.json({ data: auth });
     } catch (error) {
@@ -84,7 +76,7 @@ export class AdminController {
     try {
       const validated = UpdateTotpSchema.parse(req.body);
       const token = getAdminCookie(req);
-      const admin = await this.adminService.UpdateTotp(token, validated);
+      const admin = await this.adminService.updateTotp(token, validated);
       res.json({ data: admin });
     } catch (error) {
       next(error);

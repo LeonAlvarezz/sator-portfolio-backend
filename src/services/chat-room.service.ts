@@ -6,19 +6,19 @@ import type {
   ChatRoomFilter,
   CreateChatRoom,
 } from "@/types/chat-room.type";
-import {
-  ThrowInternalServer,
-  ThrowUnauthorized,
-} from "@/core/response/error/errors";
 import { ChatMemberRole } from "@prisma/client";
 import { getPaginationMetadata } from "@/utils/pagination";
 import { WSEventType, WSReceiver } from "@/enum/ws-event.enum";
 import { WSService } from "./ws.service";
 import { UnreadMessageService } from "./unread-message.service";
-import { UserService } from "./user.service";
+import { UserService } from "../modules/users/user.service";
 import { AdminRepository } from "@/modules/admin/admin.repository";
-import { UserRepository } from "@/repositories/user.repository";
-import { IdentityRole } from "@/types/base.type";
+import { UserRepository } from "@/modules/users/user.repository";
+import { IdentityRole } from "@/core/types/base.type";
+import {
+  NotFoundException,
+  UnauthorizedException,
+} from "@/core/response/error/exception";
 
 export class ChatRoomService {
   private chatRoomRepository: ChatRoomRepository;
@@ -47,19 +47,16 @@ export class ChatRoomService {
     if (admin) {
       return { type: IdentityRole.ADMIN, entity: admin };
     }
-    return ThrowInternalServer("Record cannot be found");
+    throw new NotFoundException();
   }
 
   public async findAll(filter: ChatRoomFilter) {
     const count = await this.chatRoomRepository.count(filter);
-    const { page, current_page, page_size } = getPaginationMetadata(
-      filter,
-      count
-    );
+    const meta = getPaginationMetadata(filter, count);
     const chatRooms = await this.chatRoomRepository.findAll(filter);
     return {
       data: chatRooms,
-      metadata: { count, page, current_page, page_size },
+      meta,
     };
   }
 
@@ -71,22 +68,22 @@ export class ChatRoomService {
     const user = await this.userService.getMe(token);
 
     if (!user) {
-      return ThrowUnauthorized();
+      throw new UnauthorizedException();
     }
-    const count = await this.chatRoomRepository.countUser(user.id!, filter);
-    const { page, current_page, page_size } = getPaginationMetadata(
-      filter,
-      count
+    const count = await this.chatRoomRepository.countUser(
+      user.id as string,
+      filter
     );
+    const meta = getPaginationMetadata(filter, count);
 
     const chatRooms = await this.chatRoomRepository.findUserChatRoom(
-      user.id!,
+      user.id as string,
       filter
     );
 
     return {
       data: chatRooms,
-      metadata: { count, page, current_page, page_size },
+      meta,
     };
   }
 

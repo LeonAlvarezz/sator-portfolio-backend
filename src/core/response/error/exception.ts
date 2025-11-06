@@ -5,6 +5,7 @@ export enum ErrorCode {
   UNAUTHORIZED = 401,
   FORBIDDEN = 403,
   NOT_FOUND = 404,
+  CONFLICT = 409,
   INTERNAL_SERVER = 500,
 }
 
@@ -15,6 +16,7 @@ export enum DefaultErrorMessage {
   NOT_FOUND = "Not Found",
   INTERNAL_SERVER = "Internal Server",
   NETWORK_ERROR = "Network Error",
+  CONFLICT = "Conflict",
   REQUEST_TIMEOUT = "Request timeout",
 }
 
@@ -85,6 +87,16 @@ export class InternalServerException extends CriticalError {
     super(
       ErrorCode.INTERNAL_SERVER,
       params?.message || DefaultErrorMessage.INTERNAL_SERVER,
+      params?.options
+    );
+  }
+}
+
+export class ConflictException extends CriticalError {
+  constructor(params?: ErrorParams) {
+    super(
+      ErrorCode.CONFLICT,
+      params?.message || DefaultErrorMessage.CONFLICT,
       params?.options
     );
   }

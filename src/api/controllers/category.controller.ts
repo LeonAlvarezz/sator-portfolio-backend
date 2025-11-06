@@ -1,5 +1,5 @@
 import { CategoryService } from "@/services/category.service";
-import { BaseModelSchema } from "@/types/base.type";
+import { BaseModelSchema } from "@/core/types/base.type";
 import { CreateCategorySchema } from "@/types/category.type";
 import type { NextFunction, Response, Request } from "express";
 export class CategoryController {

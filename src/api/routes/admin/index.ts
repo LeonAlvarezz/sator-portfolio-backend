@@ -8,6 +8,6 @@ export { default as adminRouteFormQuestion } from "./form-question.route";
 export { default as adminRouteChatRoom } from "./chat-room.route";
 export { default as adminRouteChatMember } from "./chat-member.route";
 export { default as adminRouteChatMessage } from "./chat-message.route";
-export { default as adminRouteUser } from "./user.route";
+export { default as adminRouteUser } from "../user.route";
 export { default as adminUnreadMessage } from "./unread-message.route";
 export { default as adminSiteUser } from "./site-user.route";

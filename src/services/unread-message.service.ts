@@ -1,16 +1,16 @@
 import { ChatRoomRepository } from "@/repositories/chat-room.repository";
 import { UnreadMessageRepository } from "@/repositories/unread-message.repository";
 import type { CreateUnreadMessage } from "@/types/unread-message.type";
-import {
-  ThrowInternalServer,
-  ThrowUnauthorized,
-} from "@/core/response/error/errors";
 import type { Prisma } from "@prisma/client";
 import type { Request } from "express";
-import { UserService } from "./user.service";
+import { UserService } from "../modules/users/user.service";
 import { AdminService } from "../modules/admin/admin.service";
 import { getAdminCookie, getUserCookie } from "@/utils/cookie";
 import { env } from "@/libs";
+import {
+  InternalServerException,
+  UnauthorizedException,
+} from "@/core/response/error/exception";
 
 export class UnreadMessageService {
   private unreadMessageRepository: UnreadMessageRepository;
@@ -39,9 +39,9 @@ export class UnreadMessageService {
     const auth = isAdminRoute
       ? await this.adminService.getMe(sessionToken)
       : await this.userService.getMe(sessionToken);
-    if (!auth) return ThrowUnauthorized();
+    if (!auth) throw new UnauthorizedException();
     const unreadMessages = await this.unreadMessageRepository.findByAuthId(
-      auth.id!
+      auth.id as string
     );
     return unreadMessages;
   }
@@ -54,7 +54,8 @@ export class UnreadMessageService {
       payload.chat_room_id,
       payload.chat_member_id
     );
-    if (unreadRecord) return ThrowInternalServer("Record Already Exist");
+    if (unreadRecord)
+      throw new InternalServerException({ message: "Record Already Exist" });
     return this.unreadMessageRepository.create(payload, tx);
   }
 

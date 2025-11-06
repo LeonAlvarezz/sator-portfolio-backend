@@ -1,20 +1,16 @@
-import { SimpleSuccess } from "@/core/response/response";
-import { SiteUserService } from "@/services/site-user.service";
+import { SiteUserService } from "@/modules/site-user/site-user.service";
 import { UpdateTotpSchema } from "@/types/auth.type";
-import { BaseModelSchema, COOKIE } from "@/types/base.type";
-import {
-  CreateSiteUserSchema,
-  OnboardingSchema,
-  SiteUserAuthSchema,
-  SiteUserFilterSchema,
-} from "@/types/site-user.type";
 import { deleteCookie, getSiteUserCookie, setCookie } from "@/utils/cookie";
-import {
-  ThrowForbidden,
-  ThrowInternalServer,
-  ThrowUnauthorized,
-} from "@/core/response/error/errors";
 import type { NextFunction, Request, Response } from "express";
+import { SiteUserFilterSchema } from "./dto/site-user-filter.dto";
+import { CreateSiteUserSchema } from "./dto/create-site-user.dto";
+import { BaseModelSchema, COOKIE } from "@/core/types/base.type";
+import { SiteUserSigninSchema } from "./dto/site-user-signin.dto";
+import {
+  ForbiddenException,
+  UnauthorizedException,
+} from "@/core/response/error/exception";
+import { OnboardingSchema } from "./dto/onboarding.dto";
 
 export class SiteUserController {
   private _siteUserService: SiteUserService;
@@ -29,7 +25,7 @@ export class SiteUserController {
     try {
       const filter = SiteUserFilterSchema.parse(req.query);
       const siteUsers = await this._siteUserService.paginateSiteUsers(filter);
-      res.json({ data: siteUsers });
+      res.success(siteUsers);
     } catch (error) {
       next(error);
     }
@@ -38,11 +34,8 @@ export class SiteUserController {
   public getMe = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const sessionToken = getSiteUserCookie(req);
-      if (!sessionToken) {
-        return ThrowUnauthorized();
-      }
       const auth = await this._siteUserService.getMe(sessionToken);
-      res.json({ data: auth });
+      res.success(auth);
     } catch (error) {
       next(error);
     }
@@ -56,7 +49,7 @@ export class SiteUserController {
     try {
       const validated = CreateSiteUserSchema.parse(req.body);
       const siteUser = await this._siteUserService.create(validated);
-      res.json({ data: siteUser });
+      res.success(siteUser);
     } catch (error) {
       next(error);
     }
@@ -69,13 +62,13 @@ export class SiteUserController {
   ) => {
     try {
       const params = BaseModelSchema.parse(req.params);
-      const validated = SiteUserAuthSchema.parse(req.body);
-      const siteUser = await this._siteUserService.siteUserlogin(
+      const validated = SiteUserSigninSchema.parse(req.body);
+      const siteUser = await this._siteUserService.signin(
         params.id as string,
         validated
       );
       setCookie(res, COOKIE.SITE_USER, siteUser.token);
-      res.json({ data: siteUser });
+      res.success(siteUser);
     } catch (error) {
       next(error);
     }
@@ -88,15 +81,9 @@ export class SiteUserController {
   ) => {
     try {
       const token = getSiteUserCookie(req);
-      const result = await this._siteUserService.signout(token);
-      if (!result) {
-        return ThrowInternalServer();
-      }
+      await this._siteUserService.signout(token);
       deleteCookie(res, COOKIE.SITE_USER);
-
-      res.json({
-        data: "Successfully Sign Out",
-      });
+      res.simpleSuccess();
     } catch (error) {
       next(error);
     }
@@ -113,34 +100,34 @@ export class SiteUserController {
         params.id as string
       );
       if (isRegistered) {
-        return ThrowForbidden("User is already registered");
+        throw new ForbiddenException({ message: "User is already registered" });
       }
-      SimpleSuccess(res);
+      res.simpleSuccess();
     } catch (error) {
       next(error);
     }
   };
 
-  public firstLogin = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      const params = BaseModelSchema.parse(req.params);
-      const payload = OnboardingSchema.parse(req.body);
-      const siteUser = await this._siteUserService.firstLogin(
-        params.id as string,
-        payload
-      );
-      setCookie(res, COOKIE.SITE_USER, siteUser.token);
-      res.json({
-        data: siteUser,
-      });
-    } catch (error) {
-      next(error);
-    }
-  };
+  // public firstLogin = async (
+  //   req: Request,
+  //   res: Response,
+  //   next: NextFunction
+  // ) => {
+  //   try {
+  //     const params = BaseModelSchema.parse(req.params);
+  //     const payload = OnboardingSchema.parse(req.body);
+  //     const siteUser = await this._siteUserService.firstLogin(
+  //       params.id as string,
+  //       payload
+  //     );
+  //     setCookie(res, COOKIE.SITE_USER, siteUser.token);
+  //     res.json({
+  //       data: siteUser,
+  //     });
+  //   } catch (error) {
+  //     next(error);
+  //   }
+  // };
 
   public updateAuth = async (
     req: Request,
@@ -156,9 +143,7 @@ export class SiteUserController {
         token,
         payload
       );
-      res.json({
-        data: siteUser,
-      });
+      res.success(siteUser);
     } catch (error) {
       next(error);
     }
@@ -171,9 +156,9 @@ export class SiteUserController {
   ) => {
     try {
       const key = req.headers.authorization?.split(" ")[1];
-      if (!key) return ThrowUnauthorized("No Token Found");
+      if (!key) throw new UnauthorizedException({ message: "No Token Found" });
       await this._siteUserService.increaseView(key);
-      SimpleSuccess(res);
+      res.simpleSuccess();
     } catch (error) {
       next(error);
     }
@@ -187,12 +172,13 @@ export class SiteUserController {
     try {
       const validated = UpdateTotpSchema.parse(req.body);
       const token = getSiteUserCookie(req);
-      if (!token) return ThrowUnauthorized("No Token Found");
+      if (!token)
+        throw new UnauthorizedException({ message: "No Token Found" });
       const admin = await this._siteUserService.updateSiteUserTotp(
         token,
         validated
       );
-      res.json({ data: admin });
+      res.success(admin);
     } catch (error) {
       next(error);
     }

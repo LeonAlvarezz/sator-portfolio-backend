@@ -1,30 +1,20 @@
 import { AdminRepository } from "@/modules/admin/admin.repository";
 import { SessionRepository } from "@/modules/session/session.repository";
-import { decodeBase64 } from "@oslojs/encoding";
-import { verifyTOTP } from "@oslojs/otp";
-import { env } from "@/libs";
-
-import { COOKIE } from "@/types/base.type";
 import type { UpdateTotp } from "@/types/auth.type";
-import { decrypt } from "@/utils/encryption";
 import type { AssignAdminRole } from "@/types/admin.type";
-import type { Login, Signup } from "@/types/auth.type";
-import { AuthRepository } from "@/modules/auth/auth.repository";
-import { authUtil } from "@/utils/auth_util";
+import type { Signup } from "@/types/auth.type";
 import { SessionService } from "../session/session.service";
-import { setCookie } from "@/utils/cookie";
-import type { Response } from "express";
 import { db } from "@/db";
 import { RoleRepository } from "@/modules/role/role.repository";
-import {
-  ForbiddenException,
-  InternalServerException,
-  NotFoundException,
-  UnauthorizedException,
-} from "@/libs";
 import type { Signin } from "../auth/dto/sign-in.dto";
 import type { SessionResponse } from "../auth/dto/session-response.dto";
 import { AuthService } from "../auth/auth.service";
+import {
+  ConflictException,
+  InternalServerException,
+} from "@/core/response/error/exception";
+import { authUtil } from "../auth/auth.util";
+import type { Auth } from "../auth/model/auth.model";
 
 export class AdminService {
   private adminRepository: AdminRepository;
@@ -57,14 +47,14 @@ export class AdminService {
   public async signUp(payload: Signup) {
     const existingAdmin = await this.authService.findByEmail(payload.email);
     if (existingAdmin)
-      throw new Conflic({
+      throw new ConflictException({
         message: "Admin Already Registered",
       });
 
     return db.transaction(async (tx) => {
       const hashedPassword = await authUtil.hashPassword(payload.password);
 
-      const auth = await this.authRepository.createAuth(
+      const auth = await this.authService.create(
         {
           email: payload.email,
           password: hashedPassword,
@@ -80,7 +70,7 @@ export class AdminService {
           username: payload.username,
           role_id: adminRole.id,
         },
-        auth.id,
+        auth.id as string,
         tx
       );
       return admin;
@@ -97,50 +87,10 @@ export class AdminService {
 
   public async signout(token: string) {
     const id = authUtil.decodeToSessionId(token);
-    const result = await this.sessionService.invalidateSession(id);
-    return result;
+    await this.sessionService.invalidateSession(id);
   }
 
-  public async UpdateTotp(token: string, payload: UpdateTotp) {
-    try {
-      let key: Uint8Array;
-      const sessionId = authUtil.decodeToSessionId(token);
-      const admin = await this.getMe(token);
-
-      if (!admin) throw new ForbiddenException();
-
-      try {
-        key = decodeBase64(payload.key);
-      } catch {
-        throw new InternalServerException({
-          message: "Invalid Key, Failed To Decode",
-        });
-      }
-
-      if (key.byteLength !== 20)
-        throw new InternalServerException({
-          message: "Invalid Key, ByteLength Invalid",
-        });
-      if (!verifyTOTP(key, 30, 6, payload.code))
-        throw new UnauthorizedException({ message: "Invalid Code" });
-
-      const result = await db.transaction(async (tx) => {
-        await this.sessionRepository.updateTwoFactorVerified(sessionId, tx);
-        return await this.authRepository.updateTotp(
-          admin.auth_id,
-          {
-            code: payload.code,
-            key: key,
-          },
-          tx
-        );
-      });
-
-      return result;
-    } catch (error) {
-      throw new InternalServerException({
-        error,
-      });
-    }
+  public async updateTotp(token: string, payload: UpdateTotp) {
+    return this.authService.updateTotp(token, payload);
   }
 }

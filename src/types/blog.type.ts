@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { BaseFilterSchema } from "./base.type";
+import { BaseFilterSchema } from "@/core/types/base.type";
 
 export const CreateBlogSchema = z.object({
   title: z.string().min(1, { message: "Title is required" }),
