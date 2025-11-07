@@ -1,6 +1,6 @@
 import protectedRoute from "@/core/authentication/protected-route";
 import { Router } from "express";
-import { ChatRoomController } from "../controllers/chat-room.controller";
+import { ChatRoomController } from "@/api/controllers/chat-room.controller";
 
 const router = Router();
 const chatRoomController = new ChatRoomController();

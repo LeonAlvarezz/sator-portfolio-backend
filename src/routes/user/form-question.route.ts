@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { FormQuestionController } from "../controllers/form-question.controller";
+import { FormQuestionController } from "@/api/controllers/form-question.controller";
 
 const router = Router();
 const formQuestionController = new FormQuestionController();

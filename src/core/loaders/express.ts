@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import methodOverride from "method-override";
-import routes from "@/api";
+import routes from "@/routes";
 import errorMiddleware from "@/core/middleware/error-handler";
 import cookieParser from "cookie-parser";
 import { OpticMiddleware } from "@useoptic/express-middleware";

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { FormAttemptController } from "../controllers/form-attempt.controller";
+import { FormAttemptController } from "@/api/controllers/form-attempt.controller";
 
 const router = Router();
 const formAttemptController = new FormAttemptController();

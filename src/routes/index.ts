@@ -13,7 +13,7 @@ import {
   adminRouteAdmin,
   adminRouteRole,
   adminSiteUser,
-} from "./routes/admin";
+} from "./admin";
 import {
   // blog,
   // chatMember,
@@ -24,14 +24,14 @@ import {
   // test,
   // unreadMessage,
   user,
-} from "./routes";
+} from "./user";
 import {
   siteUser,
   // siteUserBlog,
   // siteUserCategory,
   // siteUserPortfolio,
   // siteUserStatistic,
-} from "./routes/site-user";
+} from "./site-user";
 
 // guaranteed to get dependencies
 
